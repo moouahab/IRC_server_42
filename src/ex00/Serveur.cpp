@@ -13,8 +13,8 @@ Serveur::Serveur(const std::string& pa, unsigned int p) : _port(p), _password(pa
 	}
 
     struct sockaddr_in server_addr;
-    std::memset(&server_addr, 0, sizeof(server_addr));
 
+    std::memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(_port);
     server_addr.sin_addr.s_addr = INADDR_ANY;
@@ -43,10 +43,8 @@ void Serveur::run() {
 
     while (true) {
         int poll_count = poll(fds.data(), fds.size(), -1);
-        if (poll_count < 0) {
+        if (poll_count < 0) 
             throw std::runtime_error("Erreur : poll() a échoué");
-        }
-
         for (size_t i = 0; i < fds.size(); ++i) {
             if (fds[i].revents & POLLIN) {
                 if (fds[i].fd == _listenFd) {
@@ -56,10 +54,11 @@ void Serveur::run() {
                 }
             }
         }
+
     }
 }
 
-void Serveur::accepterConnexion(std::vector<pollfd>& fds) {
+void Serveur::accepterConnexion(std::vector<pollfd> &fds) {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
 
@@ -70,9 +69,8 @@ void Serveur::accepterConnexion(std::vector<pollfd>& fds) {
         std::cerr << "Erreur : Impossible d'accepter la connexion" << std::endl;
         return;
     }
-    std::cout << "Nouvelle connexion, fd: " << client_fd << std::endl;
 
-    // Optionnel : Envoyer une demande de mot de passe au client
+    std::cout << "Nouvelle connexion, fd: " << client_fd << std::endl;
     std::string request_message = "Veuillez entrer votre mot de passe : ";
     send(client_fd, request_message.c_str(), request_message.size(), 0);
 	
@@ -89,41 +87,47 @@ void Serveur::accepterConnexion(std::vector<pollfd>& fds) {
 
     std::string received_password(buffer, bytes_received);
 	std::cout << received_password << std::endl;
+    
+    if (received_password.find("\n") != std::string::npos)
+        received_password.erase(received_password.find("\n"));
+
     if (received_password == _password) {
         std::cout << "Mot de passe correct, ajout du client" << std::endl;
+
         // Ajouter le client à la liste des descripteurs surveillés par poll()
         pollfd client_pollfd;
         client_pollfd.fd = client_fd;
         client_pollfd.events = POLLIN;
 		
         fds.push_back(client_pollfd);
+
     } else {
-        std::cerr << "Mot de passe incorrect, fermeture de la connexion" << std::endl;
+        std::cerr << "Mot de passe incorrect, fermeture de la connexion" << std::endl;   
         std::string error_message = "Mot de passe incorrect. Connexion fermée.\n";
         send(client_fd, error_message.c_str(), error_message.size(), 0);
+
         close(client_fd);
     }
 }
 
 void Serveur::gérerClient(std::vector<pollfd>& fds, size_t index) {
-    int client_fd = fds[index].fd;
 
+    
+    int client_fd = fds[index].fd;
     // Lecture des données du client (par exemple, messages après connexion)
     char buffer[1024];
     std::memset(buffer, 0, sizeof(buffer));
+    
     ssize_t bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
 
     if (bytes_received <= 0) {
         std::cerr << "Client déconnecté ou erreur, fd: " << client_fd << std::endl;
         close(client_fd);
         fds.erase(fds.begin() + index);
-        return;
+        return ;
     }
-
     std::string client_message(buffer, bytes_received);
     std::cout << "Message reçu de fd " << client_fd << ": " << client_message << std::endl;
-
-    // Traiter le message du client ici...
 }
 
 

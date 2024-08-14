@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Serveur.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: moouahab <moouahab@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moouahab <mohamed.ouahab1999@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 15:44:09 by moouahab          #+#    #+#             */
-/*   Updated: 2024/08/13 19:59:56 by moouahab         ###   ########.fr       */
+/*   Updated: 2024/08/13 22:57:53 by moouahab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Serveur {
 		std::string		_password;
 		int				_listenFd;
 		void 			accepterConnexion(std::vector<pollfd>  &fds);
-		void gérerClient(std::vector<pollfd>& fds, size_t index);
+		void			gérerClient(std::vector<pollfd>& fds, size_t index);
 		
 	public:
 		Serveur(const std::string& password, unsigned int port);
