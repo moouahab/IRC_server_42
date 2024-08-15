@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	try
 	{
 		Serveur irc(password, port);
-		// irc.run();
+		irc.run();
 		return 0;
 	}
 	catch(const std::exception& e)
