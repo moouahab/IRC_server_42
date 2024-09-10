@@ -25,6 +25,7 @@ std::string   Client::getMessageClient() {
             break ;
         }
     }
+    
     // Gérer les erreurs et déconnexions
     if (!(bytesRead > 0)) {
         std::cerr << "Error receiving message from client: " << _sockfd << std::endl;
@@ -35,6 +36,7 @@ std::string   Client::getMessageClient() {
         _connected = false;
         return "";
     }
+    
     // Nettoyer les retours à la ligne du message reçu
     return trim(fullMessage);
 }
@@ -42,6 +44,7 @@ std::string   Client::getMessageClient() {
 
 void Client::messageSend(const std::string &message) {
     ssize_t bytesSent = send(_sockfd, message.c_str(), message.length(), 0);
+    
     if (bytesSent == -1)
         std::cerr << "Error sending message to client " << _sockfd << std::endl;
 }

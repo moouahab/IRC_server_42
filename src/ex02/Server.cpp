@@ -86,12 +86,16 @@ void Server::acceptConnect() {
 }
 
 void Server::handleClient(int clientFd) {
+
+    // Récupérer le message du client
     std::string message = _clients[clientFd]->getMessageClient();
     if (message.empty()) {
         closeClient(clientFd);
         return;
     }
 
+    std::cout << "msg: " << message << std::endl;
+    
     // Diviser le message en plusieurs lignes s'il y en a
     std::vector<std::string> lines = splitString(message, '\n');
     for (size_t j = 0; j < lines.size(); ++j) {
@@ -105,13 +109,13 @@ void Server::handleClient(int clientFd) {
         if (args.size() == 2 && args[0] == "PING" && _clients[clientFd]->getConnect()) {
             _clients[clientFd]->messageSend("PONG\r\n");
             std::cout << "PONG sent to client " << clientFd << std::endl;
-            continue;
+            continue ;
         }
 
         // Validation de la commande
         if (args.size() < 2) {
             _clients[clientFd]->messageSend("\033[31mInvalid command\r\n\033[0m");
-            continue;
+            continue ;
         }
 
         for (size_t i = 0; i < args.size(); i++) {
