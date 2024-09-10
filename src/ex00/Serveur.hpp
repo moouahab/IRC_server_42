@@ -6,7 +6,7 @@
 /*   By: moouahab <mohamed.ouahab1999@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 15:44:09 by moouahab          #+#    #+#             */
-/*   Updated: 2024/08/15 08:20:26 by moouahab         ###   ########.fr       */
+/*   Updated: 2024/09/08 12:53:35 by moouahab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,11 @@
 
 class Serveur {
 	private:
-		unsigned int		_port;
-		std::string			_password;
-		int					_listenFd;
-		std::vector<pollfd> _sockFds;
-		std::map<int, t_client_info> clients;
+		unsigned int					_port;
+		std::string						_password;
+		int								_listenFd;
+		std::vector<pollfd> 			_sockFds;
+		std::map<int, t_client_info> 	clients;
 
 		void				accepterConnexion();
 		void				gererClient(int client_fd);

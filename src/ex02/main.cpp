@@ -1,7 +1,8 @@
-// #include "Serveur.hpp"
+#include "Server.hpp"
 #include <iostream>
 #include <string>
-#include <regex>
+#include "lib.hpp"
+
 
 int main(int argc, char **argv)
 {
@@ -14,14 +15,15 @@ int main(int argc, char **argv)
 	std::string	password;
 	if (!parseArgument(port, password, argv))
         return (-1);
-	// try
-	// {
-	// 	Serveur irc(password, port);
-	// 	irc.run();
-	// 	return 0;
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << e.what() << '\n';
-	// }
+	try
+	{
+		Server irc(password, port);
+		std::cout << "le construcor est bon " << std::endl;
+		irc.run();
+		return 0;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 }

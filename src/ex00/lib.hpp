@@ -24,11 +24,12 @@ typedef enum    e_etat_client
 
 typedef struct			s_client_info
 {
-	int fd; // descripteur de fichier du client
+	int 			fd; // descripteur de fichier du client
 	e_etat_client	etat;
-	int tentatives;     // nombre de tentatives de mot de passe
-	std::string buffer; // tampon pour les données reçues
-    std::string ip;
+	int				tentatives;     // nombre de tentatives de mot de passe
+	std::string		buffer; // tampon pour les données reçues
+    std::string		ip;
+	std::string		nickname;
 }t_client_info;
 
 bool			isNumber(const std::string &str);

@@ -2,42 +2,11 @@
 #include <algorithm>
 #include <string>
 
-// Serveur::Serveur(const std::string& pa, unsigned int p) : _port(p), _password(pa) {
-//     _listenFd = socket(AFINET, SOCK_STREAM, 0);
-//     if (_listenFd < 0)
-//         throw std::runtime_error("Erreur : Impossible de créer le socket");
-	
-//      if (fcntl(_listenFd, F_SETFL, O_NONBLOCK) < 0) {
-//         close(_listenFd);
-//         throw std::runtime_error("Erreur : Impossible de configurer le socket en mode non-bloquant");
-//     }
-//     int opt = 1;
-//     if (setsockopt(_listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-// 	{
-// 		close(_listenFd);
-//         throw std::runtime_error("Erreur : setsockopt(SO_REUSEADDR) a échoué");
-// 	}
-//     struct sockaddrIn server_addr;
-//     std::memset(&server_addr, 0, sizeof(server_addr));
-//     server_addr.sin_family = AFINET;
-//     server_addr.sin_port = htons(_port);
-//     server_addr.sin_addr.s_addr = INADDR_ANY;
-//     if (bind(_listenFd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0)
-// 	{
-// 		close(_listenFd);
-//         throw std::runtime_error("Erreur : Impossible de lier le socket à l'adresse");
-// 	}
-//     if (listen(_listenFd, SOMAXCONN) < 0) {
-//         close(_listenFd);
-//         throw std::runtime_error("Erreur : Impossible de mettre le socket en écoute");
-//     }
-//     pollfd pfd = {_listenFd, POLLIN, 0};
-//     _sockFds.push_back(pfd);
-// }
 
 Serveur::Serveur(const std::string& password, unsigned int port)
     : _port(port), _password(password) {
     _listenFd = socket(AF_INET, SOCK_STREAM, 0);
+    
     if (_listenFd < 0) {
         throw std::runtime_error("Erreur : Impossible de créer le socket");
     }
@@ -113,8 +82,10 @@ void Serveur::accepterConnexion() {
     char* client_ip = inet_ntoa(addr.sin_addr);
     t_client_info clientInfo = {client_fd, EN_ATTENTE_DE_MOT_DE_PASSE, 0, "", std::string(client_ip)};
     clients[client_fd] = clientInfo;
+
     std::string message = "Entrez votre mot de passe: ";
     send(client_fd, message.c_str(), message.size(), 0);
+
     std::cout << "Nouveau client connecté depuis " << client_ip << std::endl;
 }
 
@@ -151,7 +122,8 @@ void Serveur::gererClient(int client_fd) {
             }
         }
     }
-   if (client.etat == AUTHENTIFIÉ) {
+
+    if (client.etat == AUTHENTIFIÉ) {
 
         std::string message = client.buffer;
         client.buffer.clear();
