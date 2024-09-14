@@ -4,11 +4,14 @@
 #include <cstring>
 #include <iostream>
 
-Client::Client(int sockfd) : _sockfd(sockfd), _connected(false) {}
+Client::Client(int sockfd) : _sockfd(sockfd), _connected(false) {
+    _connectTime = std::time(NULL);
+}
 
 Client::~Client() {
     close(_sockfd);
 }
+
 
 std::string   Client::getMessageClient() {
     char buffer[1024];  // Taille du buffer pour lire les données
@@ -51,7 +54,7 @@ void Client::messageSend(const std::string &message) {
 
 bool Client::getConnect() const { return _connected; }
 std::string Client::getUserName() const { return _userName; }
-
+std::time_t Client::getConnectTime() const { return _connectTime; }
 std::string Client::getHostName() const { return _hostName; }
 
 void Client::setConnect(bool value) { _connected = value; }

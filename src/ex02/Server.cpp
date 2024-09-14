@@ -45,9 +45,10 @@ void Server::run() {
 
     while (true) {
         int poll_count = poll(&this->_sockFds[0], _sockFds.size(), -1);
+
         if (poll_count < 0) {
             std::cerr << "Erreur lors de poll()" << std::endl;
-            break;
+            break ;
         }
 
         for (size_t i = 0; i < _sockFds.size(); i++)
@@ -81,12 +82,13 @@ void Server::acceptConnect() {
     pollfd pfd;
     pfd.fd = client_fd;
     pfd.events = POLLIN;
+    pfd.revents = 0;
     _sockFds.push_back(pfd);
     std::cout << "Nouveau client connecté : FD " << client_fd << std::endl;
 }
 
-void Server::handleClient(int clientFd) {
-
+void Server::handleClient(int clientFd)
+{
     // Récupérer le message du client
     std::string message = _clients[clientFd]->getMessageClient();
     if (message.empty()) {
@@ -94,23 +96,13 @@ void Server::handleClient(int clientFd) {
         return;
     }
 
-    std::cout << "msg: " << message << std::endl;
-    
     // Diviser le message en plusieurs lignes s'il y en a
     std::vector<std::string> lines = splitString(message, '\n');
     for (size_t j = 0; j < lines.size(); ++j) {
+
         std::string line = trim(lines[j]);  // Nettoyer chaque ligne
+        std::vector<std::string> args = splitString(line, ' ');// Diviser la ligne en arguments
 
-        // Diviser la ligne en arguments
-        std::vector<std::string> args = splitString(line, ' ');
-        std::cout << "La taille de args est de : " << args.size() << std::endl;
-
-        // Gestion du PING
-        if (args.size() == 2 && args[0] == "PING" && _clients[clientFd]->getConnect()) {
-            _clients[clientFd]->messageSend("PONG\r\n");
-            std::cout << "PONG sent to client " << clientFd << std::endl;
-            continue ;
-        }
 
         // Validation de la commande
         if (args.size() < 2) {
@@ -118,8 +110,17 @@ void Server::handleClient(int clientFd) {
             continue ;
         }
 
-        for (size_t i = 0; i < args.size(); i++) {
-            std::cout << "args[" << i << "] : " << args[i] << std::endl;
+        if (!_clients[clientFd]->getConnect())
+        {
+            bool found = false;
+            for (size_t i = 0; i < lines.size(); ++i)
+                if (lines[i].substr(0, 4) == "PASS")
+                    found = true;
+            if (!found) {
+                _clients[clientFd]->messageSend("\033[31mMissing or incorrect PASS command\r\n\033[0m");
+                closeClient(clientFd);
+                return ;
+            }
         }
 
         // Gestion de la commande PASS
@@ -131,40 +132,49 @@ void Server::handleClient(int clientFd) {
             } else {
                 _clients[clientFd]->messageSend("\033[31mAuthentication failed with error code\r\n\033[0m");
                 closeClient(clientFd);
-                return;
+                return 
+                ;
             }
         }
 
-        // Gestion de la commande NICK
-        if (args[0] == "NICK" && _clients[clientFd]->getConnect()) {
-            _clients[clientFd]->setUserName(args[1]);
-            _clients[clientFd]->messageSend("NICK " + args[1] + "\r\n");
-            std::cout << "Le client " << clientFd << " a défini son nom d'utilisateur : " << args[1] << std::endl;
-        }
-
-        // Gestion de la commande USER
-        if (args[0] == "USER" && _clients[clientFd]->getConnect()) {
-            // Vérifier que la commande USER a au moins 4 paramètres
-            if (args.size() < 5) {
-                _clients[clientFd]->messageSend("461 USER :Not enough parameters\r\n");
-                return;
-            }
-
-            _clients[clientFd]->setHostName(args[1]);  // Définir le nom réel de l'utilisateur
-            std::cout << "Le client " << clientFd << " a défini son nom réel : " << args[1] << std::endl;
-
-            // Une fois que `NICK` et `USER` sont définis, Irssi attend un message de bienvenue
-            if (!_clients[clientFd]->getUserName().empty()) {
-                _clients[clientFd]->messageSend("001 " + _clients[clientFd]->getUserName() + " :Welcome to the IRC server\r\n");
-                _clients[clientFd]->messageSend("002 " + _clients[clientFd]->getUserName() + " :Your host is localhost\r\n");
-                _clients[clientFd]->messageSend("003 " + _clients[clientFd]->getUserName() + " :This server was created for testing\r\n");
-                _clients[clientFd]->messageSend("004 " + _clients[clientFd]->getUserName() + " localhost 1.0 i\r\n");
-            }
-        }
-
-        // Gérer les autres commandes une fois l'utilisateur connecté
         if (_clients[clientFd]->getConnect()) {
-            std::cout << "Message du client " << clientFd << ": " << line << std::endl;
+            
+            if (args.size() == 2 && args[0] == "PING") {
+                _clients[clientFd]->messageSend("PONG\r\n");
+                std::cout << "PONG sent to client " << clientFd << std::endl;
+                continue ;
+            }
+            
+            // Gestion de la commande NICK
+            if (args[0] == "NICK") {
+
+                _clients[clientFd]->setUserName(args[1]);
+                _clients[clientFd]->messageSend("NICK " + args[1] + "\r\n");
+                std::cout << "Le client " << clientFd << " a défini son nom d'utilisateur : " << args[1] << std::endl;
+            }
+            
+            // Gestion de la commande USER
+            if (args[0] == "USER") {
+                // Vérifier que la commande USER a au moins 4 paramètres
+                if (args.size() < 5) {
+                    _clients[clientFd]->messageSend("461 USER :Not enough parameters\r\n");
+                    return ;
+                }
+
+                _clients[clientFd]->setHostName(args[1]);  // Définir le nom réel de l'utilisateur
+                std::cout << "Le client " << clientFd << " a défini son nom réel : " << args[1] << std::endl;
+
+                // Une fois que `NICK` et `USER` sont définis, Irssi attend un message de bienvenue
+                if (!_clients[clientFd]->getUserName().empty()) {
+                    _clients[clientFd]->messageSend("001 " + _clients[clientFd]->getUserName() + " :Welcome to the IRC server\r\n");
+                    _clients[clientFd]->messageSend("002 " + _clients[clientFd]->getUserName() + " :Your host is localhost\r\n");
+                    _clients[clientFd]->messageSend("003 " + _clients[clientFd]->getUserName() + " :This server was created for testing\r\n");
+                    _clients[clientFd]->messageSend("004 " + _clients[clientFd]->getUserName() + " localhost 1.0 i\r\n");
+                }
+            }
+            
+            if (_clients[clientFd]->getConnect())
+                std::cout << "Message du client " << clientFd << ": " << line << std::endl;
         }
     }
 }

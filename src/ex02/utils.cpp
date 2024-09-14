@@ -129,9 +129,8 @@ std::vector<std::string> splitString(const std::string &str, char delimiter) {
     std::istringstream tokenStream(str);
     
     while (std::getline(tokenStream, token, delimiter)) {
-        if (std::isspace(delimiter))
-            token = trim(token); // Supprimer les espaces avant d'ajouter le token
-
+        // if (std::isspace(delimiter))
+        token = trim(token); // Supprimer les espaces avant d'ajouter le token
         if (!token.empty()) {  // Ne pas ajouter de tokens vides
             tokens.push_back(token);
         }

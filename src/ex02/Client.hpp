@@ -2,6 +2,7 @@
 #define CLIENT_HTTP
 
 #include "lib.hpp"
+#include <ctime>
 
 class Client
 {
@@ -10,6 +11,8 @@ class Client
         std::string _userName;
         int const   _sockfd;
         bool        _connected;
+        std::time_t _connectTime;
+        
     public:
         Client(int  sockfd);
         ~Client();
@@ -21,6 +24,7 @@ class Client
         bool        getConnect() const;
         std::string getUserName() const;
         std::string getHostName() const;
+        std::time_t getConnectTime() const;
 
         void        setConnect(bool value);
         void        setUserName(const std::string &userName);
