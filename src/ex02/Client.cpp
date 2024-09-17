@@ -12,7 +12,6 @@ Client::~Client() {
     close(_sockfd);
 }
 
-
 std::string   Client::getMessageClient() {
     char buffer[1024];  // Taille du buffer pour lire les données
     std::string fullMessage;  // Message complet à construire
@@ -44,10 +43,8 @@ std::string   Client::getMessageClient() {
     return trim(fullMessage);
 }
 
-
 void Client::messageSend(const std::string &message) {
     ssize_t bytesSent = send(_sockfd, message.c_str(), message.length(), 0);
-    
     if (bytesSent == -1)
         std::cerr << "Error sending message to client " << _sockfd << std::endl;
 }
@@ -56,6 +53,7 @@ bool Client::getConnect() const { return _connected; }
 std::string Client::getUserName() const { return _userName; }
 std::time_t Client::getConnectTime() const { return _connectTime; }
 std::string Client::getHostName() const { return _hostName; }
+int Client::getUserId() const { return _sockfd; }
 
 void Client::setConnect(bool value) { _connected = value; }
 void Client::setUserName(const std::string &userName) { _userName = userName; }

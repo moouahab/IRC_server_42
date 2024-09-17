@@ -6,7 +6,7 @@
 /*   By: moouahab <mohamed.ouahab1999@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 15:44:09 by moouahab          #+#    #+#             */
-/*   Updated: 2024/09/08 17:42:44 by moouahab         ###   ########.fr       */
+/*   Updated: 2024/09/14 19:59:53 by moouahab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <iostream>
 #include "lib.hpp"
 #include "Client.hpp"
+#include "CommandHandler.hpp"
 
 
 class Server {

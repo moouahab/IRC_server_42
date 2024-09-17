@@ -87,28 +87,29 @@ void Server::acceptConnect() {
     std::cout << "Nouveau client connecté : FD " << client_fd << std::endl;
 }
 
-void Server::handleClient(int clientFd)
-{
-    // Récupérer le message du client
+void Server::handleClient(int clientFd) {
+    
     std::string message = _clients[clientFd]->getMessageClient();
     if (message.empty()) {
         closeClient(clientFd);
         return;
     }
 
-    // Diviser le message en plusieurs lignes s'il y en a
     std::vector<std::string> lines = splitString(message, '\n');
-    for (size_t j = 0; j < lines.size(); ++j) {
+    CommandHandler commandHandler(_clients, _password);
 
-        std::string line = trim(lines[j]);  // Nettoyer chaque ligne
-        std::vector<std::string> args = splitString(line, ' ');// Diviser la ligne en arguments
+    for (size_t i = 0; i < lines.size(); ++i) {
 
+        std::string line = trim(lines[i]);
+        std::vector<std::string> args = splitString(line, ' ');
 
-        // Validation de la commande
         if (args.size() < 2) {
             _clients[clientFd]->messageSend("\033[31mInvalid command\r\n\033[0m");
             continue ;
         }
+
+        for (size_t i = 0; i < args.size(); i++)
+            std::cout << "arguments [" << args[i] << "] " << std::endl;
 
         if (!_clients[clientFd]->getConnect())
         {
@@ -122,64 +123,9 @@ void Server::handleClient(int clientFd)
                 return ;
             }
         }
-
-        // Gestion de la commande PASS
-        if (args[0] == "PASS" && !_clients[clientFd]->getConnect()) {
-            if (args[1] == _password) {
-                _clients[clientFd]->messageSend("\033[32mAuthentication successful\r\n\033[0m");
-                std::cout << "Authentication successful for " << clientFd << std::endl;
-                _clients[clientFd]->setConnect(true);
-            } else {
-                _clients[clientFd]->messageSend("\033[31mAuthentication failed with error code\r\n\033[0m");
-                closeClient(clientFd);
-                return 
-                ;
-            }
-        }
-
-        if (_clients[clientFd]->getConnect()) {
-            
-            if (args.size() == 2 && args[0] == "PING") {
-                _clients[clientFd]->messageSend("PONG\r\n");
-                std::cout << "PONG sent to client " << clientFd << std::endl;
-                continue ;
-            }
-            
-            // Gestion de la commande NICK
-            if (args[0] == "NICK") {
-
-                _clients[clientFd]->setUserName(args[1]);
-                _clients[clientFd]->messageSend("NICK " + args[1] + "\r\n");
-                std::cout << "Le client " << clientFd << " a défini son nom d'utilisateur : " << args[1] << std::endl;
-            }
-            
-            // Gestion de la commande USER
-            if (args[0] == "USER") {
-                // Vérifier que la commande USER a au moins 4 paramètres
-                if (args.size() < 5) {
-                    _clients[clientFd]->messageSend("461 USER :Not enough parameters\r\n");
-                    return ;
-                }
-
-                _clients[clientFd]->setHostName(args[1]);  // Définir le nom réel de l'utilisateur
-                std::cout << "Le client " << clientFd << " a défini son nom réel : " << args[1] << std::endl;
-
-                // Une fois que `NICK` et `USER` sont définis, Irssi attend un message de bienvenue
-                if (!_clients[clientFd]->getUserName().empty()) {
-                    _clients[clientFd]->messageSend("001 " + _clients[clientFd]->getUserName() + " :Welcome to the IRC server\r\n");
-                    _clients[clientFd]->messageSend("002 " + _clients[clientFd]->getUserName() + " :Your host is localhost\r\n");
-                    _clients[clientFd]->messageSend("003 " + _clients[clientFd]->getUserName() + " :This server was created for testing\r\n");
-                    _clients[clientFd]->messageSend("004 " + _clients[clientFd]->getUserName() + " localhost 1.0 i\r\n");
-                }
-            }
-            
-            if (_clients[clientFd]->getConnect())
-                std::cout << "Message du client " << clientFd << ": " << line << std::endl;
-        }
+        commandHandler.handleCommand(clientFd, args);
     }
 }
-
-
 
 void Server::closeClient(int clientFd) {
     // Fermer le socket du client
