@@ -1,4 +1,5 @@
 #include "CommandHandler.hpp"
+#include <string>
 #include <iostream>
 
 CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::string& password)
@@ -44,8 +45,9 @@ void CommandHandler::handlePing(int clientFd, const std::vector<std::string>& ar
     _clients[clientFd]->messageSend("PONG\r\n");
 }
 
+#include <sstream>  // Nécessaire pour std::ostringstream
+
 void CommandHandler::handleNick(int clientFd, const std::vector<std::string>& args) {
-    
     if (args.size() >= 2) {
         std::string newNick = args[1];
 
@@ -63,11 +65,25 @@ void CommandHandler::handleNick(int clientFd, const std::vector<std::string>& ar
             }
         }
 
-        // Vérification si le pseudonyme est déjà utilisé
-        for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-            if (it->second->getUserName() == newNick) {
-                _clients[clientFd]->messageSend("433 " + newNick + " :Nickname is already in use\r\n");
-                return;
+        // Générer un nouveau pseudonyme si le premier est déjà pris
+        std::string finalNick = newNick;
+        int suffix = 1;
+        bool nicknameTaken = true;
+
+        // Boucle jusqu'à trouver un pseudonyme disponible
+        while (nicknameTaken) {
+            nicknameTaken = false;
+
+            // Vérification si le pseudonyme est déjà utilisé
+            for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+                if (it->second->getUserName() == finalNick) {
+                    // Si le pseudonyme est pris, ajouter un suffixe avec ostringstream
+                    std::ostringstream oss;
+                    oss << newNick << suffix++;
+                    finalNick = oss.str();
+                    nicknameTaken = true;
+                    break;
+                }
             }
         }
 
@@ -76,22 +92,22 @@ void CommandHandler::handleNick(int clientFd, const std::vector<std::string>& ar
 
         // Si c'est la première fois que le client définit un pseudonyme, éviter d'envoyer oldNick
         if (oldNick.empty()) {
-            _clients[clientFd]->messageSend("NICK " + newNick + "\r\n");
+            _clients[clientFd]->messageSend("NICK " + finalNick + "\r\n");
         } else {
-            _clients[clientFd]->messageSend(":" + oldNick + " NICK " + newNick + "\r\n");
+            _clients[clientFd]->messageSend(":" + oldNick + " NICK " + finalNick + "\r\n");
         }
 
         // Mettre à jour le pseudonyme du client
-        std::cout << "new nickname : " << newNick << std::endl;
-        _clients[clientFd]->setUserName(newNick);
+        std::cout << "\033[33m[INFO] new nickname : " << finalNick << "\033[0m"<< std::endl;
+        _clients[clientFd]->setUserName(finalNick);
 
         // Notifier les autres clients du changement de pseudonyme
         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
             if (it->first != clientFd) {
                 if (oldNick.empty()) {
-                    it->second->messageSend(":" + newNick + " NICK " + newNick + "\r\n");
+                    it->second->messageSend(":" + finalNick + " NICK " + finalNick + "\r\n");
                 } else {
-                    it->second->messageSend(":" + oldNick + " NICK " + newNick + "\r\n");
+                    it->second->messageSend(":" + oldNick + " NICK " + finalNick + "\r\n");
                 }
             }
         }
@@ -100,6 +116,67 @@ void CommandHandler::handleNick(int clientFd, const std::vector<std::string>& ar
         _clients[clientFd]->messageSend("431 NICK :No nickname given\r\n");
     }
 }
+
+
+
+
+// void CommandHandler::handleNick(int clientFd, const std::vector<std::string>& args) {
+    
+//     if (args.size() >= 2) {
+//         std::string newNick = args[1];
+
+//         // Vérification : le pseudonyme ne doit pas être vide
+//         if (newNick.empty()) {
+//             _clients[clientFd]->messageSend("431 NICK :No nickname given\r\n");
+//             return;
+//         }
+
+//         // Validation du format du pseudonyme (éviter les caractères spéciaux)
+//         for (size_t i = 0; i < newNick.length(); ++i) {
+//             if (!isalnum(newNick[i]) && newNick[i] != '_') {
+//                 _clients[clientFd]->messageSend("432 " + newNick + " :Erroneous nickname\r\n");
+//                 return;
+//             }
+//         }
+
+//         // Vérification si le pseudonyme est déjà utilisé
+//         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+//             if (it->second->getUserName() == newNick) {
+//                 _clients[clientFd]->messageSend("433 " + newNick + " :Nickname is already in use\r\n");
+
+//                 return ;
+//             }
+//         }
+
+//         // Sauvegarder l'ancien pseudonyme
+//         std::string oldNick = _clients[clientFd]->getUserName();
+
+//         // Si c'est la première fois que le client définit un pseudonyme, éviter d'envoyer oldNick
+//         if (oldNick.empty()) {
+//             _clients[clientFd]->messageSend("NICK " + newNick + "\r\n");
+//         } else {
+//             _clients[clientFd]->messageSend(":" + oldNick + " NICK " + newNick + "\r\n");
+//         }
+
+//         // Mettre à jour le pseudonyme du client
+//         std::cout << "new nickname : " << newNick << std::endl;
+//         _clients[clientFd]->setUserName(newNick);
+
+//         // Notifier les autres clients du changement de pseudonyme
+//         for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+//             if (it->first != clientFd) {
+//                 if (oldNick.empty()) {
+//                     it->second->messageSend(":" + newNick + " NICK " + newNick + "\r\n");
+//                 } else {
+//                     it->second->messageSend(":" + oldNick + " NICK " + newNick + "\r\n");
+//                 }
+//             }
+//         }
+
+//     } else {
+//         _clients[clientFd]->messageSend("431 NICK :No nickname given\r\n");
+//     }
+// }
 
 
 

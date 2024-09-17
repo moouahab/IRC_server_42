@@ -107,23 +107,30 @@ void Server::handleClient(int clientFd) {
             _clients[clientFd]->messageSend("\033[31mInvalid command\r\n\033[0m");
             continue ;
         }
-
-        for (size_t i = 0; i < args.size(); i++)
-            std::cout << "arguments [" << args[i] << "] " << std::endl;
-
+		// for (size_t j = 0; j < lines.size(); j++)
+        //     std::cout << "\33[35m[DEBUG] " << lines[j].substr(0, 4) << " : " << lines[j] << "\033[0m"<< std::endl;
         if (!_clients[clientFd]->getConnect())
         {
             bool found = false;
-            for (size_t i = 0; i < lines.size(); ++i)
-                if (lines[i].substr(0, 4) == "PASS")
+            for (size_t j = 0; j < lines.size(); j++)
+			{
+                if (lines[j].substr(0, 4) == "PASS")
+				{
                     found = true;
-            if (!found) {
+					break ;
+				}
+			}
+            if (!found) {	
                 _clients[clientFd]->messageSend("\033[31mMissing or incorrect PASS command\r\n\033[0m");
-                closeClient(clientFd);
+				closeClient(clientFd);
                 return ;
             }
         }
-        commandHandler.handleCommand(clientFd, args);
+		else
+			for (size_t i = 0; i < lines.size(); ++i)
+				if (!_clients[clientFd]->getUserName().empty())
+					std::cout << "[INFOR] Le "<< _clients[clientFd]->getUserName() <<" a envoyer : " << lines[i] << std::endl;
+		commandHandler.handleCommand(clientFd, args);
     }
 }
 
