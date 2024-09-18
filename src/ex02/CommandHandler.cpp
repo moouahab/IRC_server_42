@@ -1,5 +1,6 @@
 #include "CommandHandler.hpp"
 #include <string>
+#include <sstream>
 #include <iostream>
 
 CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::string& password)
@@ -45,7 +46,6 @@ void CommandHandler::handlePing(int clientFd, const std::vector<std::string>& ar
     _clients[clientFd]->messageSend("PONG\r\n");
 }
 
-#include <sstream>  // Nécessaire pour std::ostringstream
 
 void CommandHandler::handleNick(int clientFd, const std::vector<std::string>& args) {
     if (args.size() >= 2) {

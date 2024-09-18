@@ -12,36 +12,52 @@ Client::~Client() {
     close(_sockfd);
 }
 
-std::string   Client::getMessageClient() {
-    char buffer[1024];  // Taille du buffer pour lire les données
-    std::string fullMessage;  // Message complet à construire
-    size_t bytesRead;
+std::string Client::getMessageClient() {
+	char buffer[1024];  // Taille du buffer pour lire les données
+	std::memset(buffer, 0, sizeof(buffer));
+	std::string fullMessage;  // Message complet à construire
+	size_t bytesRead;
+	size_t totalBytes = 0;  // Pour suivre le nombre total de bytes lus
 
-    // Boucle pour s'assurer que l'on reçoit tous les paquets
-    while ((bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0)) > 0) {
-        fullMessage.append(buffer, bytesRead);  // Ajouter les données lues au message complet
+	const size_t MAX_MESSAGE_SIZE = 65536;  // Taille maximale du message autorisé (par exemple 64 Ko)
 
-        // Si la quantité de données reçues est inférieure à la taille du buffer,
-        // cela signifie probablement que toutes les données ont été reçues
-        if (bytesRead < sizeof(buffer)) {
-            break ;
-        }
-    }
-    
-    // Gérer les erreurs et déconnexions
-    if (!(bytesRead > 0)) {
-        std::cerr << "Error receiving message from client: " << _sockfd << std::endl;
-        _connected = false;
-        return "";
-    } else if (bytesRead == 0) {
-        std::cerr << "Client disconnected: FD " << _sockfd << std::endl;
-        _connected = false;
-        return "";
-    }
-    
-    // Nettoyer les retours à la ligne du message reçu
-    return trim(fullMessage);
+	// Boucle pour s'assurer que l'on reçoit tous les paquets
+	while ((bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0)) > 0) {
+		if (totalBytes + bytesRead > MAX_MESSAGE_SIZE) {
+			std::cerr << "Message size exceeds maximum allowed size!" << std::endl;
+			return "";  // On peut aussi fermer la connexion ici si c'est critique
+		}
+		// Vérification de la validité du contenu avant append (ici, on vérifie que le premier caractère est valide)
+		if (std::isalnum(buffer[0])) {
+			fullMessage.append(buffer, bytesRead);  // Ajouter les données lues au message complet
+		} else {
+			std::cerr << "Invalid data received!" << std::endl;
+			return "";  // On peut aussi choisir d'ignorer ou de gérer cette erreur autrement
+		}
+		totalBytes += bytesRead;
+
+		// Si la quantité de données reçues est inférieure à la taille du buffer,
+		// cela signifie probablement que toutes les données ont été reçues
+		if (bytesRead < sizeof(buffer)) {
+			break;
+		}
+	}
+
+	// Gérer les erreurs et déconnexions
+	if (bytesRead < 0) {
+		std::cerr << "Error receiving message from client: " << _sockfd << std::endl;
+		_connected = false;
+		return "";
+	} else if (bytesRead == 0) {
+		std::cerr << "Client disconnected: FD " << _sockfd << std::endl;
+		_connected = false;
+		return "";
+	}
+
+	// Nettoyer les retours à la ligne du message reçu
+	return trim(fullMessage);
 }
+
 
 void Client::messageSend(const std::string &message) {
     ssize_t bytesSent = send(_sockfd, message.c_str(), message.length(), 0);
