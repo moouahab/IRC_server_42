@@ -1,10 +1,11 @@
 #ifndef COMMANDHANDLER_HPP
 #define COMMANDHANDLER_HPP
 
+#include "Client.hpp"
+#include "Command.hpp"
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include "Client.hpp"
 
 class CommandHandler {
 public:
@@ -17,10 +18,12 @@ private:
     std::map<int, Client*>& _clients;
     std::string _password;
 
-    void handlePass(int clientFd, const std::vector<std::string>& args);
-    void handlePing(int clientFd, const std::vector<std::string>& args);
-    void handleNick(int clientFd, const std::vector<std::string>& args);
-    void handleUser(int clientFd, const std::vector<std::string>& args);
+    std::map<std::string, Command*> _commands;
+
+    void registerCommand(const std::string& name, Command* command);
+    Command* createCommand(const std::string& name);
+
+    void executeCommand(Command* command, int clientFd, const std::vector<std::string>& args);
 };
 
 #endif

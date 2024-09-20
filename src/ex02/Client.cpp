@@ -44,7 +44,7 @@ std::string Client::getMessageClient() {
 	}
 
 	// Gérer les erreurs et déconnexions
-	if (bytesRead < 0) {
+	if (!(bytesRead > 0)) {
 		std::cerr << "Error receiving message from client: " << _sockfd << std::endl;
 		_connected = false;
 		return "";
@@ -58,12 +58,36 @@ std::string Client::getMessageClient() {
 	return trim(fullMessage);
 }
 
-
 void Client::messageSend(const std::string &message) {
-    ssize_t bytesSent = send(_sockfd, message.c_str(), message.length(), 0);
-    if (bytesSent == -1)
-        std::cerr << "Error sending message to client " << _sockfd << std::endl;
+    ssize_t totalBytesSent = 0;
+    ssize_t messageLength = message.length();
+    const char* messageData = message.c_str();
+    
+    // Boucle pour s'assurer que tout le message est envoyé
+    while (totalBytesSent < messageLength) {
+        ssize_t bytesSent = send(_sockfd, messageData + totalBytesSent, messageLength - totalBytesSent, 0);
+        
+        if (bytesSent == -1) {
+            std::cerr << "Error sending message to client " << _sockfd << std::endl;
+            break ;  // Quitter la boucle en cas d'erreur
+        }
+
+        totalBytesSent += bytesSent;
+    }
+
+    if (totalBytesSent == messageLength) {
+        std::cout << "[INFO] Message envoyé avec succès au client " << _sockfd << std::endl;
+    } else {
+        std::cerr << "[ERROR] Le message n'a pas été entièrement envoyé au client " << _sockfd << std::endl;
+    }
 }
+
+
+// void Client::messageSend(const std::string &message) {
+//     ssize_t bytesSent = send(_sockfd, message.c_str(), message.length(), 0);
+//     if (bytesSent == -1)
+//         std::cerr << "Error sending message to client " << _sockfd << std::endl;
+// }
 
 bool Client::getConnect() const { return _connected; }
 std::string Client::getUserName() const { return _userName; }

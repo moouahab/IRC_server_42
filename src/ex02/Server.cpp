@@ -94,7 +94,6 @@ void Server::handleClient(int clientFd) {
         closeClient(clientFd);
         return;
     }
-
     std::vector<std::string> lines = splitString(message, '\n');
     CommandHandler commandHandler(_clients, _password);
 
@@ -107,9 +106,10 @@ void Server::handleClient(int clientFd) {
             _clients[clientFd]->messageSend("\033[31mInvalid command\r\n\033[0m");
             continue ;
         }
-		// for (size_t j = 0; j < lines.size(); j++)
-        //     std::cout << "\33[35m[DEBUG] " << lines[j].substr(0, 4) << " : " << lines[j] << "\033[0m"<< std::endl;
-        if (!_clients[clientFd]->getConnect())
+		for (size_t j = 0; j < lines.size(); j++)
+            std::cout << "\33[35m[DEBUG] " << lines[j].substr(0, 4) << " : " << lines[j] << "\033[0m"<< std::endl;
+        std::cout << "[INFO] Le nombre de ligne de : " << lines.size() << std::endl;
+        if (!_clients[clientFd]->getConnect() && lines.size() >= 2)
         {
             bool found = false;
             for (size_t j = 0; j < lines.size(); j++)
@@ -129,7 +129,7 @@ void Server::handleClient(int clientFd) {
 		else
 			for (size_t i = 0; i < lines.size(); ++i)
 				if (!_clients[clientFd]->getUserName().empty())
-					std::cout << "[INFOR] Le "<< _clients[clientFd]->getUserName() <<" a envoyer : " << lines[i] << std::endl;
+					std::cout << "[INFO] Le "<< _clients[clientFd]->getUserName() <<" a envoyer : " << lines[i] << std::endl;
 		commandHandler.handleCommand(clientFd, args);
     }
 }
