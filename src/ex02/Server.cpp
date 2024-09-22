@@ -62,6 +62,7 @@ void Server::run() {
                 }
             }
         }
+        checkClientSessions();
     }
 }
 
@@ -108,6 +109,7 @@ void Server::handleClient(int clientFd) {
         }
 		for (size_t j = 0; j < lines.size(); j++)
             std::cout << "\33[35m[DEBUG] " << lines[j].substr(0, 4) << " : " << lines[j] << "\033[0m"<< std::endl;
+
         std::cout << "[INFO] Le nombre de ligne de : " << lines.size() << std::endl;
         if (!_clients[clientFd]->getConnect() && lines.size() >= 2)
         {
@@ -130,7 +132,31 @@ void Server::handleClient(int clientFd) {
 			for (size_t i = 0; i < lines.size(); ++i)
 				if (!_clients[clientFd]->getUserName().empty())
 					std::cout << "[INFO] Le "<< _clients[clientFd]->getUserName() <<" a envoyer : " << lines[i] << std::endl;
-		commandHandler.handleCommand(clientFd, args);
+
+		if (args[0] == "PRIVMSG")
+        {
+            std::string line = trim(lines[i]);
+            args = splitString(line, ':');
+            std::vector<std::string> private_keys = splitString(args[0], ' ');
+            private_keys.push_back(args[1]);
+            commandHandler.handleCommand(clientFd, private_keys);
+        }
+        else
+            commandHandler.handleCommand(clientFd, args);
+    }
+}
+
+void Server::checkClientSessions() {
+    std::time_t now = std::time(NULL);
+
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ) {
+        if (!it->second->isSessionActive()) {
+            std::cout << "Client inactif : " << it->second->getUserId() << " - Fermeture de la connexion\n";
+            closeClient(it->second->getUserId());
+            it = _clients.erase(it); // Supprimer le client inactif
+        } else {
+            ++it;
+        }
     }
 }
 

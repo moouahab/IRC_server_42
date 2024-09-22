@@ -30,6 +30,8 @@ class Client
         void        setConnect(bool value);
         void        setUserName(const std::string &userName);
         void        setHostName(const std::string &hostName);
+
+        bool        isSessionActive();
         
 };
 

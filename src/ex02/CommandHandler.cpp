@@ -6,6 +6,7 @@
 #include "NickCommand.hpp"
 #include "UserCommand.hpp"
 #include "CapCommand.hpp"
+#include "PrivmsgCommand.hpp"
 #include <iostream>
 
 CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::string& password)
@@ -17,6 +18,7 @@ CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::strin
     registerCommand("NICK", new NickCommand());
     registerCommand("USER", new UserCommand());
     registerCommand("CAP", new CapCommand());
+    registerCommand("PRIVMSG", new PrivmsgCommand());
 }
 
 CommandHandler::~CommandHandler() {
@@ -40,30 +42,35 @@ Command* CommandHandler::createCommand(const std::string& name) {
 void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>& args) {
     // Vérifier si la commande est présente dans les arguments
     if (args.empty()) return ;
-    std::string commandName = args[0];
-    std::time_t end = std::time(NULL);
-    Command     *command = createCommand(commandName);
+    std::string     commandName = args[0];
+    std::time_t     end = std::time(NULL);
+    Command         *command = createCommand(commandName);
+
+    // for (size_t i = 0; i < args.size(); i++)
+    // {
+    //     std::cout << "[INFO] " << args[i] << std::endl;
+    // }   
+
 
     std::cout << "[DEBUG] what time is it : " << std::difftime(end, _clients[clientFd]->getConnectTime()) << std::endl;
     if (command)
         executeCommand(command, clientFd, args);
-    // Vérifier si 200 secondes se sont écoulées depuis la connexion du client
-    // else if (std::difftime(end, _clients[clientFd]->getConnectTime()) >= 20) {
-    //     // Envoyer un PING pour vérifier la connexion
-    //     std::cout << "Envoyer un PING pour vérifier la connexion " << _clients[clientFd]->getConnectTime() << std::endl;
-    //     Command* ping = createCommand("PING");
-    //     if (ping) {
-    //         // Création du vecteur d'arguments avec la syntaxe C++98
-    //         std::vector<std::string> pingArgs;
-    //         pingArgs.push_back("PING");
-    //         pingArgs.push_back("localhost");
-
-    //         executeCommand(ping, clientFd, pingArgs);
-    //     }
-    // }
-    // Si aucune commande valide, envoyer un message d'erreur
     else
         _clients[clientFd]->messageSend("\033[31mUnknown command\r\n\033[0m");
+
+    // Vérifier si 200 secondes se sont écoulées depuis la connexion du client
+    if (std::difftime(end, _clients[clientFd]->getConnectTime()) >= 2 && std::difftime(end, _clients[clientFd]->getConnectTime()) <= 4) {
+        // Envoyer un PING pour vérifier la connexion
+        std::cout << "Envoyer un PING pour vérifier la connexion " << std::difftime(end, _clients[clientFd]->getConnectTime()) << std::endl;
+        Command* ping = createCommand("PING");
+        if (ping) {
+            // Création du vecteur d'arguments avec la syntaxe C++98
+            std::vector<std::string> pingArgs;
+            pingArgs.push_back("PING");
+            pingArgs.push_back("localhost");
+            executeCommand(ping, clientFd, pingArgs);
+        }
+    }
 }
 
 

@@ -9,6 +9,7 @@ Client::Client(int sockfd) : _sockfd(sockfd), _connected(false) {
 }
 
 Client::~Client() {
+	_connectTime = 0;
     close(_sockfd);
 }
 
@@ -99,3 +100,8 @@ void Client::setConnect(bool value) { _connected = value; }
 void Client::setUserName(const std::string &userName) { _userName = userName; }
 void Client::setHostName(const std::string &hostName) { _hostName = hostName; }
 
+bool Client::isSessionActive() {
+    std::time_t now = std::time(NULL);
+    double secondsElapsed = std::difftime(now, _connectTime);
+    return secondsElapsed <= 300; // 300 secondes = 5 minutes
+}

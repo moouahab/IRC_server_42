@@ -48,7 +48,7 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         if (oldNick.empty()) {
             clients[clientFd]->messageSend("NICK " + finalNick + "\r\n");
         } else {
-            clients[clientFd]->messageSend(":" + oldNick + " NICK " + finalNick + "\r\n");
+            clients[clientFd]->messageSend(oldNick + " NICK " + finalNick + "\r\n");
         }
 
         // Mettre à jour le pseudonyme du client
@@ -59,9 +59,9 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
             if (it->first != clientFd) {
                 if (oldNick.empty()) {
-                    it->second->messageSend(":" + finalNick + " NICK " + finalNick + "\r\n");
+                    it->second->messageSend(finalNick + " NICK " + finalNick + "\r\n");
                 } else {
-                    it->second->messageSend(":" + oldNick + " NICK " + finalNick + "\r\n");
+                    it->second->messageSend(oldNick + " NICK " + finalNick + "\r\n");
                 }
             }
         }
@@ -70,3 +70,4 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         clients[clientFd]->messageSend("431 NICK :No nickname given\r\n");
     }
 }
+ 

@@ -6,7 +6,7 @@
 /*   By: moouahab <mohamed.ouahab1999@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 15:44:09 by moouahab          #+#    #+#             */
-/*   Updated: 2024/09/14 19:59:53 by moouahab         ###   ########.fr       */
+/*   Updated: 2024/09/22 11:54:09 by moouahab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ private:
     void acceptConnect();                    // Accepter une nouvelle connexion
     void handleClient(int clientFd);            // Gérer la communication avec un client existant
     void closeClient(int clientFd);             // Fermer la connexion d'un client
+    void checkClientSessions();
 
 public:
     Server(const std::string& password, unsigned int port); // Constructeur
