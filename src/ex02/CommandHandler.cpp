@@ -46,13 +46,6 @@ void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>&
     std::time_t     end = std::time(NULL);
     Command         *command = createCommand(commandName);
 
-    // for (size_t i = 0; i < args.size(); i++)
-    // {
-    //     std::cout << "[INFO] " << args[i] << std::endl;
-    // }   
-
-
-    std::cout << "[DEBUG] what time is it : " << std::difftime(end, _clients[clientFd]->getConnectTime()) << std::endl;
     if (command)
         executeCommand(command, clientFd, args);
     else
@@ -60,8 +53,6 @@ void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>&
 
     // Vérifier si 200 secondes se sont écoulées depuis la connexion du client
     if (std::difftime(end, _clients[clientFd]->getConnectTime()) >= 2 && std::difftime(end, _clients[clientFd]->getConnectTime()) <= 4) {
-        // Envoyer un PING pour vérifier la connexion
-        std::cout << "Envoyer un PING pour vérifier la connexion " << std::difftime(end, _clients[clientFd]->getConnectTime()) << std::endl;
         Command* ping = createCommand("PING");
         if (ping) {
             // Création du vecteur d'arguments avec la syntaxe C++98

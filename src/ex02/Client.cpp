@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 
-Client::Client(int sockfd) : _sockfd(sockfd), _connected(false) {
+Client::Client(int sockfd) : _sockfd(sockfd), _connected(false), _isIrssi(true) {
     _connectTime = std::time(NULL);
 }
 
@@ -46,7 +46,6 @@ std::string Client::getMessageClient() {
 
 	// Gérer les erreurs et déconnexions
 	if (!(bytesRead > 0)) {
-		std::cerr << "Error receiving message from client: " << _sockfd << std::endl;
 		_connected = false;
 		return "";
 	} else if (bytesRead == 0) {
@@ -75,26 +74,26 @@ void Client::messageSend(const std::string &message) {
 
         totalBytesSent += bytesSent;
     }
-
-    if (totalBytesSent == messageLength) {
-        std::cout << "[INFO] Message envoyé avec succès au client " << _sockfd << std::endl;
-    } else {
-        std::cerr << "[ERROR] Le message n'a pas été entièrement envoyé au client " << _sockfd << std::endl;
-    }
 }
 
-
-// void Client::messageSend(const std::string &message) {
-//     ssize_t bytesSent = send(_sockfd, message.c_str(), message.length(), 0);
-//     if (bytesSent == -1)
-//         std::cerr << "Error sending message to client " << _sockfd << std::endl;
-// }
+void    Client::isIrssiClientConnect() {
+    static int i = 0;
+    time_t end = time(NULL);
+    
+    if (i == 0 && difftime(end , getConnectTime()) > 5 && !getConnect())
+    {
+        i++;
+        _isIrssi = false;
+    }
+}
 
 bool Client::getConnect() const { return _connected; }
 std::string Client::getUserName() const { return _userName; }
 std::time_t Client::getConnectTime() const { return _connectTime; }
 std::string Client::getHostName() const { return _hostName; }
 int Client::getUserId() const { return _sockfd; }
+
+bool Client::isIrssi() const { return _isIrssi; }
 
 void Client::setConnect(bool value) { _connected = value; }
 void Client::setUserName(const std::string &userName) { _userName = userName; }
@@ -103,5 +102,5 @@ void Client::setHostName(const std::string &hostName) { _hostName = hostName; }
 bool Client::isSessionActive() {
     std::time_t now = std::time(NULL);
     double secondsElapsed = std::difftime(now, _connectTime);
-    return secondsElapsed <= 300; // 300 secondes = 5 minutes
+    return secondsElapsed <= 60; // 300 secondes = 5 minutes
 }

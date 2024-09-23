@@ -46,9 +46,9 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         std::string oldNick = clients[clientFd]->getUserName();
         // Si c'est la première fois que le client définit un pseudonyme, éviter d'envoyer oldNick
         if (oldNick.empty()) {
-            clients[clientFd]->messageSend("NICK " + finalNick + "\r\n");
+            clients[clientFd]->messageSend(':' + "NICK " + finalNick + "\r\n");
         } else {
-            clients[clientFd]->messageSend(oldNick + " NICK " + finalNick + "\r\n");
+            clients[clientFd]->messageSend(':' + oldNick + " NICK " + finalNick + "\r\n");
         }
 
         // Mettre à jour le pseudonyme du client

@@ -62,10 +62,8 @@ void Server::run() {
                 }
             }
         }
-        checkClientSessions();
     }
 }
-
 
 void Server::acceptConnect() {
     struct sockaddr_in addr;
@@ -88,12 +86,15 @@ void Server::acceptConnect() {
     std::cout << "Nouveau client connecté : FD " << client_fd << std::endl;
 }
 
+
+
 void Server::handleClient(int clientFd) {
     
     std::string message = _clients[clientFd]->getMessageClient();
     if (message.empty()) {
-        closeClient(clientFd);
-        return;
+        if (!_clients[clientFd]->getConnect())
+            closeClient(clientFd);
+        return  ;
     }
     std::vector<std::string> lines = splitString(message, '\n');
     CommandHandler commandHandler(_clients, _password);
@@ -101,16 +102,13 @@ void Server::handleClient(int clientFd) {
     for (size_t i = 0; i < lines.size(); ++i) {
 
         std::string line = trim(lines[i]);
+        
         std::vector<std::string> args = splitString(line, ' ');
-
-        if (args.size() < 2) {
+        if (args.empty()) {
             _clients[clientFd]->messageSend("\033[31mInvalid command\r\n\033[0m");
             continue ;
         }
-		for (size_t j = 0; j < lines.size(); j++)
-            std::cout << "\33[35m[DEBUG] " << lines[j].substr(0, 4) << " : " << lines[j] << "\033[0m"<< std::endl;
 
-        std::cout << "[INFO] Le nombre de ligne de : " << lines.size() << std::endl;
         if (!_clients[clientFd]->getConnect() && lines.size() >= 2)
         {
             bool found = false;
@@ -128,11 +126,6 @@ void Server::handleClient(int clientFd) {
                 return ;
             }
         }
-		else
-			for (size_t i = 0; i < lines.size(); ++i)
-				if (!_clients[clientFd]->getUserName().empty())
-					std::cout << "[INFO] Le "<< _clients[clientFd]->getUserName() <<" a envoyer : " << lines[i] << std::endl;
-
 		if (args[0] == "PRIVMSG")
         {
             std::string line = trim(lines[i]);
@@ -147,24 +140,30 @@ void Server::handleClient(int clientFd) {
 }
 
 void Server::checkClientSessions() {
-    std::time_t now = std::time(NULL);
-
-    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ) {
+    std::map<int, Client*>::iterator it = _clients.begin();
+    while (it != _clients.end()) {
         if (!it->second->isSessionActive()) {
             std::cout << "Client inactif : " << it->second->getUserId() << " - Fermeture de la connexion\n";
             closeClient(it->second->getUserId());
-            it = _clients.erase(it); // Supprimer le client inactif
+            it = _clients.erase(it);  // Erase renvoie un itérateur valide après l'élément supprimé
         } else {
-            ++it;
+            ++it;  // Si aucun élément n'est supprimé, on avance l'itérateur
         }
     }
 }
 
+
+
 void Server::closeClient(int clientFd) {
     // Fermer le socket du client
     close(clientFd);
-    delete _clients[clientFd];
-    _clients.erase(clientFd);
+    // Supprimer l'objet client de la map _clients
+    std::map<int, Client*>::iterator it = _clients.find(clientFd);
+    if (it != _clients.end()) {
+        delete it->second;  // Libérer la mémoire associée à ce client
+        _clients.erase(it); // Supprimer le client de la map
+    }
+    // Supprimer le client de _sockFds
     for (size_t i = 0; i < _sockFds.size(); ++i) {
         if (_sockFds[i].fd == clientFd) {
             _sockFds.erase(_sockFds.begin() + i);
@@ -173,6 +172,7 @@ void Server::closeClient(int clientFd) {
     }
     std::cout << "Client fermé : FD " << clientFd << std::endl;
 }
+
 
 Server::~Server() {
 
