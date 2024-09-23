@@ -3,6 +3,7 @@
 #include <iostream>
 
 void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args) {
+
     if (args.size() >= 2) {
         std::string newNick = args[1];
 
@@ -28,7 +29,6 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         // Boucle jusqu'à trouver un pseudonyme disponible
         while (nicknameTaken) {
             nicknameTaken = false;
-
             // Vérification si le pseudonyme est déjà utilisé
             for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
                 if (it->second->getUserName() == finalNick) {
@@ -46,9 +46,9 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         std::string oldNick = clients[clientFd]->getUserName();
         // Si c'est la première fois que le client définit un pseudonyme, éviter d'envoyer oldNick
         if (oldNick.empty()) {
-            clients[clientFd]->messageSend(':' + "NICK " + finalNick + "\r\n");
+            clients[clientFd]->messageSend(":" + finalNick + " NICK " + finalNick + "\r\n");
         } else {
-            clients[clientFd]->messageSend(':' + oldNick + " NICK " + finalNick + "\r\n");
+            clients[clientFd]->messageSend(':' + finalNick + " NICK " + finalNick + "\r\n");
         }
 
         // Mettre à jour le pseudonyme du client

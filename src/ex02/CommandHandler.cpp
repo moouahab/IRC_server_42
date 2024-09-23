@@ -7,6 +7,7 @@
 #include "UserCommand.hpp"
 #include "CapCommand.hpp"
 #include "PrivmsgCommand.hpp"
+#include "WhoisCommand.hpp"
 #include <iostream>
 
 CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::string& password)
@@ -17,6 +18,7 @@ CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::strin
     registerCommand("PING", new PingCommand());
     registerCommand("NICK", new NickCommand());
     registerCommand("USER", new UserCommand());
+    registerCommand("WHOIS", new WhoisCommand());
     registerCommand("CAP", new CapCommand());
     registerCommand("PRIVMSG", new PrivmsgCommand());
 }
@@ -42,6 +44,13 @@ Command* CommandHandler::createCommand(const std::string& name) {
 void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>& args) {
     // Vérifier si la commande est présente dans les arguments
     if (args.empty()) return ;
+    std::cout << "[DEBUG] ";
+    for (size_t i = 0; i < args.size(); i++)
+    {
+        std::cout << args[i] << " ";
+    }
+    std::cout << std::endl;
+
     std::string     commandName = args[0];
     std::time_t     end = std::time(NULL);
     Command         *command = createCommand(commandName);

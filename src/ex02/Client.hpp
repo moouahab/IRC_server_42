@@ -20,7 +20,7 @@ class Client
 
         std::string         getMessageClient();
         void                messageSend(const std::string &message);
-        void               isIrssiClientConnect();
+        bool                isIrssiClientConnect();
 
 
         bool        getConnect() const;
@@ -32,9 +32,9 @@ class Client
         void        setConnect(bool value);
         void        setUserName(const std::string &userName);
         void        setHostName(const std::string &hostName);
+        void        setUserId(int value) { _sockfd = value;};
 
         bool        isSessionActive();
-        
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: moouahab <mohamed.ouahab1999@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 15:44:09 by moouahab          #+#    #+#             */
-/*   Updated: 2024/09/23 11:48:39 by moouahab         ###   ########.fr       */
+/*   Updated: 2024/09/23 21:09:28 by moouahab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ private:
     std::vector<pollfd>         _sockFds;      // Liste des sockets pour poll()
     std::map<int, Client *>     _clients;      // Associe les file descriptors (sockets) aux clients
 
-    void acceptConnect();                    // Accepter une nouvelle connexion
-    void handleClient(int clientFd);            // Gérer la communication avec un client existant
-    void closeClient(int clientFd);             // Fermer la connexion d'un client
-    void checkClientSessions();
+    void    acceptConnect();                    // Accepter une nouvelle connexion
+    void    handleClient(int clientFd);            // Gérer la communication avec un client existant
+    void    closeClient(int clientFd);             // Fermer la connexion d'un client
+    Client* findClientByNickname(const std::string& nickname); // Chercher un client par son pseudo
+    void    cleanupInactiveClients();           // Nettoyer les clients inactifs après un certain temps
 
 public:
     Server(const std::string& password, unsigned int port); // Constructeur

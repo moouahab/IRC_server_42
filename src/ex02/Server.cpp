@@ -92,10 +92,12 @@ void Server::handleClient(int clientFd) {
     
     std::string message = _clients[clientFd]->getMessageClient();
     if (message.empty()) {
-        if (!_clients[clientFd]->getConnect())
-            closeClient(clientFd);
-        return  ;
+        closeClient(clientFd);
+        return ;
     }
+
+    
+
     std::vector<std::string> lines = splitString(message, '\n');
     CommandHandler commandHandler(_clients, _password);
 
@@ -106,7 +108,7 @@ void Server::handleClient(int clientFd) {
         std::vector<std::string> args = splitString(line, ' ');
         if (args.empty()) {
             _clients[clientFd]->messageSend("\033[31mInvalid command\r\n\033[0m");
-            continue ;
+            return ;
         }
 
         if (!_clients[clientFd]->getConnect() && lines.size() >= 2)
@@ -137,32 +139,17 @@ void Server::handleClient(int clientFd) {
         else
             commandHandler.handleCommand(clientFd, args);
     }
-}
 
-void Server::checkClientSessions() {
-    std::map<int, Client*>::iterator it = _clients.begin();
-    while (it != _clients.end()) {
-        if (!it->second->isSessionActive()) {
-            std::cout << "Client inactif : " << it->second->getUserId() << " - Fermeture de la connexion\n";
-            closeClient(it->second->getUserId());
-            it = _clients.erase(it);  // Erase renvoie un itérateur valide après l'élément supprimé
-        } else {
-            ++it;  // Si aucun élément n'est supprimé, on avance l'itérateur
-        }
+    std::map<int, Client *>::iterator it = _clients.begin();
+    for (;it != _clients.end(); it++)
+    {
+        std::cout << "[DEBUG] " << it->first << " " << it->second->getUserName() << std::endl;
     }
 }
-
-
 
 void Server::closeClient(int clientFd) {
     // Fermer le socket du client
     close(clientFd);
-    // Supprimer l'objet client de la map _clients
-    std::map<int, Client*>::iterator it = _clients.find(clientFd);
-    if (it != _clients.end()) {
-        delete it->second;  // Libérer la mémoire associée à ce client
-        _clients.erase(it); // Supprimer le client de la map
-    }
     // Supprimer le client de _sockFds
     for (size_t i = 0; i < _sockFds.size(); ++i) {
         if (_sockFds[i].fd == clientFd) {
@@ -181,4 +168,26 @@ Server::~Server() {
         delete it->second;
     }
     close(_listenFd);
+}
+
+
+Client* Server::findClientByNickname(const std::string& nickname) {
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if (it->second->getUserName() == nickname) {
+            return it->second;
+        }
+    }
+    return NULL;
+}
+
+void Server::cleanupInactiveClients() {
+    std::time_t now = std::time(NULL);
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ) {
+        if (!it->second->getConnect() && (now - it->second->getConnectTime()) > 300) { // 5 minutes d'inactivité
+            delete it->second;
+            _clients.erase(it++);
+        } else {
+            ++it;
+        }
+    }
 }

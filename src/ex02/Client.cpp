@@ -69,22 +69,22 @@ void Client::messageSend(const std::string &message) {
         
         if (bytesSent == -1) {
             std::cerr << "Error sending message to client " << _sockfd << std::endl;
-            break ;  // Quitter la boucle en cas d'erreur
+            break ;
         }
-
         totalBytesSent += bytesSent;
     }
 }
 
-void    Client::isIrssiClientConnect() {
+bool    Client:: isIrssiClientConnect() {
     static int i = 0;
     time_t end = time(NULL);
-    
-    if (i == 0 && difftime(end , getConnectTime()) > 5 && !getConnect())
+
+    if (i == 0 && difftime(end , getConnectTime()) > 5 && !getConnect()) 
     {
         i++;
         _isIrssi = false;
     }
+	return _isIrssi;
 }
 
 bool Client::getConnect() const { return _connected; }
