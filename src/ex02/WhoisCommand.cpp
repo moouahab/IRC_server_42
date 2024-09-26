@@ -1,13 +1,10 @@
 #include "WhoisCommand.hpp"
-#include "Client.hpp"
-#include <iostream>
-#include <string>
+#include "Server.hpp"
 #include <sstream>
 
 void WhoisCommand::execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args, Server &server) {
-    (void)server;
     if (args.size() < 2) {
-        clients[clientFd]->messageSend("461 WHOIS :Not enough parameters\r\n");
+        clients[clientFd]->messageSend("461 " + clients[clientFd]->getUserName() + " WHOIS :Not enough parameters\r\n");
         return;
     }
 
@@ -17,26 +14,47 @@ void WhoisCommand::execute(int clientFd, std::map<int, Client*>& clients, const 
     // Parcourir la liste des clients pour trouver l'utilisateur
     for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
         if (it->second->getUserName() == target) {
-            // L'utilisateur a été trouvé, envoyer les informations
-            std::ostringstream response;
-            response << "311 " << target << " " << it->second->getUserName() << " "
-                     << it->second->getHostName() << " * :User information\r\n";
+            Client* targetClient = it->second;
 
+            // RPL_WHOISUSER (311)
+            std::ostringstream response;
+            response << ":" << server.getServerName() << " 311 " << clients[clientFd]->getUserName() << " "
+                     << targetClient->getUserName() << " " << targetClient->getHostName() << " * :"
+                     << targetClient->getRealName() << "\r\n";
             clients[clientFd]->messageSend(response.str());
 
-            // Message générique pour les canaux, car ils ne sont pas encore gérés
-            clients[clientFd]->messageSend("319 " + target + " :No channels listed\r\n");
+            // RPL_WHOISSERVER (312)
+            std::ostringstream serverResponse;
+            serverResponse << ":" << server.getServerName() << " 312 " << clients[clientFd]->getUserName() << " "
+                           << targetClient->getUserName() << " " << server.getServerName() << " :Server Info\r\n";
+            clients[clientFd]->messageSend(serverResponse.str());
 
-            // Temps de connexion (en secondes d'inactivité)
+            // RPL_WHOISCHANNELS (319)
+            std::ostringstream channelList;
+            channelList << ":" << server.getServerName() << " 319 " << clients[clientFd]->getUserName() << " "
+                        << targetClient->getUserName() << " :";
+
+            std::set<Channel*> userChannels = targetClient->getChannels();
+            for (std::set<Channel*>::iterator chanIt = userChannels.begin(); chanIt != userChannels.end(); ++chanIt) {
+                Channel* channel = *chanIt;
+                if (channel->isOperator(targetClient)) {
+                    channelList << "@" << channel->getName() << " ";
+                } else {
+                    channelList << channel->getName() << " ";
+                }
+            }
+            channelList << "\r\n";
+            clients[clientFd]->messageSend(channelList.str());
+            // RPL_WHOISIDLE (317)
             std::time_t currentTime = std::time(NULL);
-            int secondsConnected = static_cast<int>(std::difftime(currentTime, it->second->getConnectTime()));
-
+            int idleTime = static_cast<int>(std::difftime(currentTime, targetClient->getConnectTime()));
             std::ostringstream idleMessage;
-            idleMessage << "317 " << target << " " << secondsConnected << " :seconds idle\r\n";
+            idleMessage << ":" << server.getServerName() << " 317 " << clients[clientFd]->getUserName() << " "
+                        << targetClient->getUserName() << " " << idleTime << " :seconds idle\r\n";
             clients[clientFd]->messageSend(idleMessage.str());
-
-            // Fin de la commande WHOIS
-            clients[clientFd]->messageSend("318 " + target + " :End of WHOIS list\r\n");
+            // RPL_ENDOFWHOIS (318)
+            clients[clientFd]->messageSend(":" + server.getServerName() + " 318 " + clients[clientFd]->getUserName()
+                                           + " " + targetClient->getUserName() + " :End of WHOIS list\r\n");
 
             userFound = true;
             break;
@@ -45,8 +63,7 @@ void WhoisCommand::execute(int clientFd, std::map<int, Client*>& clients, const 
 
     // Si l'utilisateur n'a pas été trouvé
     if (!userFound) {
-        clients[clientFd]->messageSend("401 " + target + " :No such nick\r\n");
+        clients[clientFd]->messageSend(":" + server.getServerName() + " 401 " + clients[clientFd]->getUserName() + " "
+                                       + target + " :No such nick\r\n");
     }
 }
-
-

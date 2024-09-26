@@ -10,14 +10,14 @@ class Channel; // Déclaration anticipée
 class Client
 {
     private:
-        std::string _hostName;
-        std::string _userName;
-        std::string _realName;
-        int         _sockfd;
-        bool        _connected;
-        bool        _isIrssi;
-        std::time_t _connectTime;
-        std::set<Channel*> _channels;
+        std::string         _hostName;
+        std::string         _userName;
+        std::string         _realName;
+        int                 _sockfd;
+        bool                _connected;
+        bool                _isIrssi;
+        std::time_t         _connectTime;
+        std::set<Channel*>  _channels;
 
     public:
         Client(int  sockfd);
@@ -42,6 +42,8 @@ class Client
         void        setRealName(const std::string& realName) { _realName = realName; };
 
         bool        isSessionActive();
+        bool        isRegistered() const { return !_userName.empty() && !_hostName.empty(); };
+
 
         // Gestion des canaux
         void joinChannel(Channel* channel);
