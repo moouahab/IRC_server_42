@@ -138,5 +138,15 @@ std::vector<std::string> splitString(const std::string &str, char delimiter) {
     return tokens;
 }
 
-
-
+bool matchWildcard(const std::string& pattern, const std::string& str) {
+    // Implémentation simple pour le joker '*'
+    size_t pos = pattern.find('*');
+    if (pos == std::string::npos) {
+        return pattern == str;
+    } else {
+        std::string prefix = pattern.substr(0, pos);
+        std::string suffix = pattern.substr(pos + 1);
+        return str.substr(0, prefix.size()) == prefix &&
+               str.substr(str.size() - suffix.size()) == suffix;
+    }
+}

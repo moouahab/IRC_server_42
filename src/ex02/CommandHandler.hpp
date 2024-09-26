@@ -3,6 +3,7 @@
 
 #include "Client.hpp"
 #include "Command.hpp"
+#include "PartCommand.hpp"
 #include <map>
 #include <string>
 #include <vector>

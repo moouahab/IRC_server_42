@@ -7,6 +7,8 @@
 #include "PrivmsgCommand.hpp"
 #include "WhoisCommand.hpp"
 #include "JoinCommand.hpp"
+#include "ModeCommand.hpp"
+#include "WhoCommand.hpp"
 #include <iostream>
 
 CommandHandler::CommandHandler(Server& server, std::map<int, Client*>& clients, const std::string& password)
@@ -21,6 +23,9 @@ CommandHandler::CommandHandler(Server& server, std::map<int, Client*>& clients, 
     registerCommand("CAP", new CapCommand());
     registerCommand("PRIVMSG", new PrivmsgCommand());
     registerCommand("JOIN", new JoinCommand());
+    registerCommand("PART", new PartCommand());
+    registerCommand("MODE", new ModeCommand());
+    registerCommand("WHO", new WhoCommand());
 }
 
 CommandHandler::~CommandHandler() {

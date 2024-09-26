@@ -26,5 +26,6 @@ bool                     isNumber(const std::string &str);
 std::vector<std::string> splitString(const std::string& str, char delimiter);
 bool                     parseArgument(int &port, std::string &password, char *av[]);
 std::string              trim(const std::string& str);
+bool matchWildcard(const std::string& pattern, const std::string& str);
 
 #endif 

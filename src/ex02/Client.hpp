@@ -12,6 +12,7 @@ class Client
     private:
         std::string _hostName;
         std::string _userName;
+        std::string _realName;
         int         _sockfd;
         bool        _connected;
         bool        _isIrssi;
@@ -26,16 +27,19 @@ class Client
         void                messageSend(const std::string &message);
         bool                isIrssiClientConnect();
 
-        bool        getConnect() const;
         std::string getUserName() const;
-        int         getUserId() const;
         std::string getHostName() const;
         std::time_t getConnectTime() const;
+        std::string getRealName() const { return _realName; };
         bool        isIrssi() const;
+        bool        getConnect() const;
+        int         getUserId() const;
+
         void        setConnect(bool value);
         void        setUserName(const std::string &userName);
         void        setHostName(const std::string &hostName);
         void        setUserId(int value) { _sockfd = value;};
+        void        setRealName(const std::string& realName) { _realName = realName; };
 
         bool        isSessionActive();
 

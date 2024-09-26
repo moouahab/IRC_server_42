@@ -9,6 +9,8 @@ void UserCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
     }
 
     clients[clientFd]->setHostName(args[1]);
+    clients[clientFd]->setRealName(args[4]); 
+
     if (!clients[clientFd]->getUserName().empty()) {
         clients[clientFd]->messageSend("001 " + clients[clientFd]->getUserName() + " :Welcome to the IRC server\r\n");
         clients[clientFd]->messageSend("002 " + clients[clientFd]->getUserName() + " :Your host is localhost\r\n");

@@ -12,7 +12,7 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
     std::string channelName = args[1];
 
     // Vérifier si le canal existe
-    Channel* channel = server.getChannel(channelName);
+    Channel *channel = server.getChannel(channelName);
     if (!channel) {
         // Créer le canal s'il n'existe pas
         server.createChannel(channelName, clients[clientFd]);
@@ -37,10 +37,17 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
     // Lister les utilisateurs du canal
     std::string namesList = "= " + channelName + " :";
     std::set<Client*> channelClients = channel->getClients();
+    // Dans JoinCommand.cpp, lors de la construction de la liste des noms
     for (std::set<Client*>::iterator it = channelClients.begin(); it != channelClients.end(); ++it) {
-        namesList += (*it)->getUserName() + " ";
+        if (channel->isOperator(*it)) {
+            namesList += "@" + (*it)->getUserName() + " ";
+        } else {
+            namesList += (*it)->getUserName() + " ";
+        }
     }
     namesList += "\r\n";
+    clients[clientFd]->messageSend("353 " + clients[clientFd]->getUserName() + " " + namesList);
+
     clients[clientFd]->messageSend("353 " + clients[clientFd]->getUserName() + " " + namesList);
     clients[clientFd]->messageSend("366 " + clients[clientFd]->getUserName() + " " + channelName + " :End of NAMES list\r\n");
 }

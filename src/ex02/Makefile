@@ -4,7 +4,8 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -g3 -O3 -std=c++98
 OBJDIR = obj
 SRCS = CapCommand.cpp Channel.cpp Client.cpp CommandHandler.cpp JoinCommand.cpp NickCommand.cpp \
-       PassCommand.cpp PingCommand.cpp PrivmsgCommand.cpp Server.cpp UserCommand.cpp WhoisCommand.cpp \
+       PassCommand.cpp PingCommand.cpp PartCommand.cpp ModeCommand.cpp PrivmsgCommand.cpp Server.cpp\
+	   WhoCommand.cpp UserCommand.cpp WhoisCommand.cpp \
        main.cpp utils.cpp
 
 OBJS = $(SRCS:%.cpp=$(OBJDIR)/%.o)

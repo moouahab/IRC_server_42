@@ -17,7 +17,7 @@ int main(int argc, char **argv)
         return (-1);
 	try
 	{
-		Server irc(password, port);
+		Server irc(password, port, "localhost");
 		std::cout << "le construcor est bon " << std::endl;
 		irc.run();
 		return 0;

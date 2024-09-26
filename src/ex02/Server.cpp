@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
-Server::Server(const std::string& password, unsigned int port)
-    : _port(port), _password(password) {
+Server::Server(const std::string& password, unsigned int port, std::string server)
+    : _port(port), _password(password), _serverName(server){
     _listenFd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (_listenFd < 0) {
@@ -146,6 +146,8 @@ void Server::handleClient(int clientFd) {
             _commandHandler->handleCommand(clientFd, args);
     }
 }
+
+std::string Server::getServerName() const { return _serverName; }
 
 void Server::closeClient(int clientFd) {
     Client* client = _clients[clientFd];
