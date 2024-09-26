@@ -7,14 +7,17 @@
 #include <string>
 #include <vector>
 
+class Server; // Déclaration anticipée
+
 class CommandHandler {
 public:
-    CommandHandler(std::map<int, Client*>& clients, const std::string& password);
+    CommandHandler(Server& server, std::map<int, Client*>& clients, const std::string& password);
     ~CommandHandler();
 
     void handleCommand(int clientFd, const std::vector<std::string>& args);
 
 private:
+    Server& _server;
     std::map<int, Client*>& _clients;
     std::string _password;
 

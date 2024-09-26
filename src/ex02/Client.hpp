@@ -3,6 +3,9 @@
 
 #include "lib.hpp"
 #include <ctime>
+#include <set>
+
+class Channel; // Déclaration anticipée
 
 class Client
 {
@@ -13,7 +16,8 @@ class Client
         bool        _connected;
         bool        _isIrssi;
         std::time_t _connectTime;
-        
+        std::set<Channel*> _channels;
+
     public:
         Client(int  sockfd);
         ~Client();
@@ -21,7 +25,6 @@ class Client
         std::string         getMessageClient();
         void                messageSend(const std::string &message);
         bool                isIrssiClientConnect();
-
 
         bool        getConnect() const;
         std::string getUserName() const;
@@ -35,6 +38,12 @@ class Client
         void        setUserId(int value) { _sockfd = value;};
 
         bool        isSessionActive();
+
+        // Gestion des canaux
+        void joinChannel(Channel* channel);
+        void leaveChannel(Channel* channel);
+        bool isInChannel(const std::string& channelName) const;
+        std::set<Channel*> getChannels() const;
 };
 
 #endif

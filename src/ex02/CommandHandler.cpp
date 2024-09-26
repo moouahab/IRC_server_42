@@ -1,19 +1,18 @@
 #include "CommandHandler.hpp"
-#include "Command.hpp"
 #include "PassCommand.hpp"
-#include <ctime>
 #include "PingCommand.hpp"
 #include "NickCommand.hpp"
 #include "UserCommand.hpp"
 #include "CapCommand.hpp"
 #include "PrivmsgCommand.hpp"
 #include "WhoisCommand.hpp"
+#include "JoinCommand.hpp"
 #include <iostream>
 
-CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::string& password)
-    : _clients(clients), _password(password) {
+CommandHandler::CommandHandler(Server& server, std::map<int, Client*>& clients, const std::string& password)
+    : _server(server), _clients(clients), _password(password) {
 
-    // Exemple d'enregistrement de commandes
+    // Enregistrement des commandes
     registerCommand("PASS", new PassCommand(password));
     registerCommand("PING", new PingCommand());
     registerCommand("NICK", new NickCommand());
@@ -21,6 +20,7 @@ CommandHandler::CommandHandler(std::map<int, Client*>& clients, const std::strin
     registerCommand("WHOIS", new WhoisCommand());
     registerCommand("CAP", new CapCommand());
     registerCommand("PRIVMSG", new PrivmsgCommand());
+    registerCommand("JOIN", new JoinCommand());
 }
 
 CommandHandler::~CommandHandler() {
@@ -52,29 +52,14 @@ void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>&
     std::cout << std::endl;
 
     std::string     commandName = args[0];
-    std::time_t     end = std::time(NULL);
-    Command         *command = createCommand(commandName);
+    Command*        command = createCommand(commandName);
 
     if (command)
         executeCommand(command, clientFd, args);
     else
-        _clients[clientFd]->messageSend("\033[31mUnknown command\r\n\033[0m");
-
-    // Vérifier si 200 secondes se sont écoulées depuis la connexion du client
-    if (std::difftime(end, _clients[clientFd]->getConnectTime()) >= 2 && std::difftime(end, _clients[clientFd]->getConnectTime()) <= 4) {
-        Command* ping = createCommand("PING");
-        if (ping) {
-            // Création du vecteur d'arguments avec la syntaxe C++98
-            std::vector<std::string> pingArgs;
-            pingArgs.push_back("PING");
-            pingArgs.push_back("localhost");
-            executeCommand(ping, clientFd, pingArgs);
-        }
-    }
+         _clients[clientFd]->messageSend("421 " + args[0] + " :Unknown command\r\n");
 }
 
-
-
 void CommandHandler::executeCommand(Command* command, int clientFd, const std::vector<std::string>& args) {
-    command->execute(clientFd, _clients, args);
+    command->execute(clientFd, _clients, args, _server);
 }

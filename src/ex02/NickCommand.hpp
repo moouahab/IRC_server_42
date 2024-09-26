@@ -8,7 +8,7 @@
 
 class NickCommand : public Command {
 public:
-    void execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args);
+    void execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args, Server& server);
 };
 
 #endif

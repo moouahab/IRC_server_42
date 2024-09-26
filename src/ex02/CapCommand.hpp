@@ -11,7 +11,7 @@ public:
     // Constructeur et destructeur
     ~CapCommand() {}
     // Méthode pour exécuter la commande CAP
-    void execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args);
+    void execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args, Server &server);
 };
 
 #endif // CAPCOMMAND_HPP

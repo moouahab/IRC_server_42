@@ -1,49 +1,36 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: moouahab <mohamed.ouahab1999@gmail.com>    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 15:44:09 by moouahab          #+#    #+#             */
-/*   Updated: 2024/09/23 21:09:28 by moouahab         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef SERVER_HPP
 #define SERVER_HPP
-
 
 #include <iostream>
 #include "lib.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
 #include "CommandHandler.hpp"
-
 
 class Server {
 private:
-    unsigned int                _port;         // Port d'écoute du serveur
-    int                         _listenFd;     // Socket d'écoute (file descriptor)
-    std::string                 _password;     // Mot de passe pour se connecter
+    unsigned int                _port;
+    int                         _listenFd;
+    std::string                 _password;
+    std::vector<pollfd>         _sockFds;
+    std::map<int, Client *>     _clients;
+    std::map<std::string, Channel*> _channels;
+    CommandHandler*             _commandHandler;
 
-    // map pour gérer les clients (par leur pseudo ou leur socket)
-    std::vector<pollfd>         _sockFds;      // Liste des sockets pour poll()
-    std::map<int, Client *>     _clients;      // Associe les file descriptors (sockets) aux clients
-
-    void    acceptConnect();                    // Accepter une nouvelle connexion
-    void    handleClient(int clientFd);            // Gérer la communication avec un client existant
-    void    closeClient(int clientFd);             // Fermer la connexion d'un client
-    Client* findClientByNickname(const std::string& nickname); // Chercher un client par son pseudo
-    void    cleanupInactiveClients();           // Nettoyer les clients inactifs après un certain temps
+    void    acceptConnect();
+    void    handleClient(int clientFd);
+    void    closeClient(int clientFd);
+    void    cleanupInactiveClients();
 
 public:
-    Server(const std::string& password, unsigned int port); // Constructeur
-    ~Server() ; // Destructeur
-    void                run();  // Lancer le serveur
+    Server(const std::string& password, unsigned int port);
+    ~Server();
+    void                run();
+
+    // Gestion des canaux
+    Channel* getChannel(const std::string& channelName);
+    void createChannel(const std::string& channelName, Client* creator, const std::string& password = "");
+    void removeChannel(const std::string& channelName);
 };
-
-
-
-
 
 #endif

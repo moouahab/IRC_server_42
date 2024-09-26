@@ -3,7 +3,8 @@
 #include <sstream>
 #include <iostream>
 
-void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args) {
+void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args, Server &server) {
+    (void)server;
     if (args.size() < 3) {
         clients[clientFd]->messageSend("461 PRIVMSG :Not enough parameters\r\n");
         return;
@@ -32,14 +33,14 @@ void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, cons
             }
         }
 
-        // if (recipient[0] == '#') {
-        //     for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        //         if (it->first != clientFd && it->second->isInChannel(recipient)) {
-        //             it->second->messageSend(":" + clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
-        //         }
-        //     }
-        //     userFound = true;
-        // }
+        if (recipient[0] == '#') {
+            for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+                if (it->first != clientFd && it->second->isInChannel(recipient)) {
+                    it->second->messageSend(":" + clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
+                }
+            }
+            userFound = true;
+        }
 
         if (!userFound) {
             clients[clientFd]->messageSend("401 " + recipient + " :No such nick/channel\r\n");
