@@ -42,6 +42,7 @@ class Client
         void        setRealName(const std::string& realName) { _realName = realName; };
 
         bool        isSessionActive();
+        std::string getPrefix() const;
         bool        isRegistered() const { return !_userName.empty() && !_hostName.empty(); };
 
 

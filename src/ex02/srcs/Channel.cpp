@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name, Client* creator, const std::string& password)
-    : _name(name), _creator(creator), _password(password) {
+    : _name(name), _creator(creator), _password(password), _userLimit(0) {
     _clients.insert(creator);
     _operators.insert(creator);
 }
@@ -10,10 +10,29 @@ Channel::~Channel() {
     // Aucune ressource dynamique à libérer ici
 }
 
-void Channel::addClient(Client* client) {
-    _clients.insert(client);
+// void Channel::addClient(Client* client) {
+//     _clients.insert(client);
+// }
+
+bool Channel::hasMode(char mode) const {
+    return _mode.find(mode) != std::string::npos;
 }
 
+
+bool Channel::addClient(Client* client) {
+     if (hasMode('i') && !isInvited(client)) {
+        client->messageSend("473 " + _name + " :Cannot join channel (+i)\r\n");
+        return false;
+    }
+
+    if (_userLimit > 0 && _clients.size() >= static_cast<size_t>(_userLimit)) {
+        client->messageSend("471 " + _name + " :Cannot join channel (+l)\r\n");
+        return false;
+    }
+    _clients.insert(client);
+    removeInvitation(client); // Supprimer l'invitation après que le client a rejoint
+    return true;
+}
 void Channel::removeClient(Client* client) {
     _clients.erase(client);
 }
@@ -77,5 +96,27 @@ void Channel::broadcast(const std::string& message, Client* sender) {
         if (*it != sender) {
             (*it)->messageSend(message);
         }
+    }
+}
+
+Client* Channel::getClientByName(const std::string& userName) const {
+    for (std::set<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        if ((*it)->getUserName() == userName) {
+            return *it;
+        }
+    }
+    return NULL;
+}
+
+void Channel::addMode(char mode) {
+    if (_mode.find(mode) == std::string::npos) {
+        _mode += mode;
+    }
+}
+
+void Channel::removeMode(char mode) {
+    size_t pos = _mode.find(mode);
+    if (pos != std::string::npos) {
+        _mode.erase(pos, 1);
     }
 }

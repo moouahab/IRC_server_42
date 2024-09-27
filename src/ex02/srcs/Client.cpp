@@ -84,3 +84,7 @@ bool Client::isInChannel(const std::string& channelName) const {
 std::set<Channel*> Client::getChannels() const {
     return _channels;
 }
+
+std::string Client::getPrefix() const {
+    return getUserName() + "!" + _userName + "@" + _hostName;
+}
