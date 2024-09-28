@@ -53,7 +53,7 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         // Notifier les autres clients
         for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
             if (it->first != clientFd) {
-                it->second->messageSend(":" + (oldNick.empty() ? finalNick : oldNick) + " NICK " + finalNick + "\r\n");
+                it->second->messageSend((oldNick.empty() ? ":" + finalNick : oldNick) + " NICK " + finalNick + "\r\n");
             }
         }
 

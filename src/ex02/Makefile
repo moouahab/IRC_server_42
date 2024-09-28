@@ -24,12 +24,16 @@ SRCS = \
 	srcs/command/WhoCommand.cpp \
 	srcs/command/WhoisCommand.cpp \
 	srcs/option/OptionInviteOnly.cpp \
+	srcs/command/InviteCommand.cpp\
+	srcs/command/KickCommand.cpp\
+	srcs/command/TopicCommand.cpp\
 	srcs/option/OptionKey.cpp \
 	srcs/option/OptionLimit.cpp \
 	srcs/option/OptionOperator.cpp \
 	srcs/option/OptionTopicRestriction.cpp \
 	srcs/Server.cpp \
 	srcs/command/UserCommand.cpp \
+	srcs/Logger.cpp\
 	srcs/main.cpp \
 	srcs/utils.cpp
 
@@ -63,6 +67,7 @@ clean:
 # Nettoyage complet (objets + exécutable)
 fclean: clean
 	rm -f $(NAME)
+	rm server.log
 
 # Recompilation complète
 re: fclean all

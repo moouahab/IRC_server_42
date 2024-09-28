@@ -6,6 +6,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "CommandHandler.hpp"
+#include "Logger.hpp"
 
 class Server {
 private:
@@ -21,7 +22,6 @@ private:
     void    acceptConnect();
     void    handleClient(int clientFd);
     void    closeClient(int clientFd);
-    void    cleanupInactiveClients();
 
 public:
     Server(const std::string& password, unsigned int port, std::string server);

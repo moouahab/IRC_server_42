@@ -13,6 +13,7 @@ class Client
         std::string         _hostName;
         std::string         _userName;
         std::string         _realName;
+        std::string         _joinKey;
         int                 _sockfd;
         bool                _connected;
         bool                _isIrssi;
@@ -27,10 +28,14 @@ class Client
         void                messageSend(const std::string &message);
         bool                isIrssiClientConnect();
 
+        std::string getChannelName() const;
+
         std::string getUserName() const;
+        std::string getJoinKey() const;
         std::string getHostName() const;
-        std::time_t getConnectTime() const;
         std::string getRealName() const { return _realName; };
+        std::time_t getConnectTime() const;
+        std::string getPrefix() const;
         bool        isIrssi() const;
         bool        getConnect() const;
         int         getUserId() const;
@@ -42,14 +47,14 @@ class Client
         void        setRealName(const std::string& realName) { _realName = realName; };
 
         bool        isSessionActive();
-        std::string getPrefix() const;
         bool        isRegistered() const { return !_userName.empty() && !_hostName.empty(); };
-
-
+        void        setJoinKey(const std::string& key);
+        void        clearJoinKey();
         // Gestion des canaux
         void joinChannel(Channel* channel);
         void leaveChannel(Channel* channel);
         bool isInChannel(const std::string& channelName) const;
+        void clearChannel(std::string channel);
         std::set<Channel*> getChannels() const;
 };
 

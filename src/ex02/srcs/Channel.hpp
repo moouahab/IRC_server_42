@@ -9,11 +9,11 @@ class Channel {
     public:
         Channel(const std::string& name, Client* creator, const std::string& password = "");
         ~Channel();
+        std::string const   getPassword() const { return _password; }
 
         // Méthodes de gestion des clients
         // void addClient(Client* client);
         bool addClient(Client *client);
-        void removeClient(Client* client);
         bool isClientInChannel(Client* client) const;
         std::set<Client*> getClients() const;
 
@@ -45,13 +45,21 @@ class Channel {
         int     getUserLimit() const { return _userLimit; };
         int     getClientCount() const { return _clients.size(); };
         // Diffusion de messages
-        void broadcast(const std::string& message, Client* sender = NULL);
+        void    broadcast(const std::string& message, Client* sender = NULL);
+        std::string getClientInChannel() const {
+            std::string clientNames;
+            for(std::set<Client *>::iterator it = _clients.begin(); it != _clients.end();){
+                clientNames += (*it)->getUserName() + " ";
+
+            }
+            return clientNames;
+        };
 
         // Invitations
-        void inviteClient(Client* client) { _invitedClients.insert(client); }
-        bool isInvited(Client* client) const { return _invitedClients.find(client) != _invitedClients.end(); }
-        void removeInvitation(Client* client) { _invitedClients.erase(client); }
-        std::string const getPassword() const { return _password; }
+        void                inviteClient(Client* client) { _invitedClients.insert(client); }
+        bool                isInvited(Client* client) const { return _invitedClients.find(client) != _invitedClients.end(); }
+        void                removeInvitation(Client* client) { _invitedClients.erase(client); }
+        void                removeClient(Client* client);
 
         bool hasMode(char mode) const;
 

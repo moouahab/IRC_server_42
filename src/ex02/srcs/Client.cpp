@@ -1,5 +1,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Server.hpp"
+#include "Logger.hpp"
 #include <unistd.h>
 #include <sys/socket.h>
 #include <cstring>
@@ -65,26 +67,75 @@ bool Client::isSessionActive() {
 
 // Gestion des canaux
 void Client::joinChannel(Channel* channel) {
+    std::cout << "\033[35m"<< _userName << " Join channel " << channel->getName() << "\033[0m" << std::endl;
     _channels.insert(channel);
+    Logger::log("Client " + _userName + " joined channel " + channel->getName());
 }
 
 void Client::leaveChannel(Channel* channel) {
     _channels.erase(channel);
-}
-
-bool Client::isInChannel(const std::string& channelName) const {
-    for (std::set<Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
-        if ((*it)->getName() == channelName) {
-            return true;
-        }
-    }
-    return false;
+    Logger::log("Client " + _userName + " left channel " + channel->getName());
 }
 
 std::set<Channel*> Client::getChannels() const {
     return _channels;
 }
 
+bool Client::isInChannel(const std::string& channelName) const {
+
+    for (std::set<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+        std::cout <<"\033[35m NOM DES CHANEL ] [" << (*it)->getName() << "]\033[0m" << std::endl;
+        if ((*it)->getName() == channelName) {
+            std::cout << this->_userName << " is in " << channelName << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string Client::getPrefix() const {
     return getUserName() + "!" + _userName + "@" + _hostName;
+}
+
+
+void Client::setJoinKey(const std::string& key) {
+    _joinKey = key;
+    Logger::log("Client " + _userName + " set join key to " + key);
+}
+
+std::string Client::getJoinKey() const {
+    return _joinKey;
+}
+
+void Client::clearChannel(std::string channel) {
+    Channel* channelToRemove = NULL;
+    for (std::set<Channel*>::iterator it = _channels.begin(); it!= _channels.end(); ++it) {
+        std::cout << "Removing " << (*it)->getName() << std::endl;
+        if ((*it)->getName() == channel) {
+            channelToRemove = *it;
+            break;
+        }
+    }
+    if (channelToRemove) {
+        _channels.erase(channelToRemove);
+        Logger::log("Client " + _userName + " left channel " + channel);
+    }
+}
+
+
+void Client::clearJoinKey() {
+    _joinKey.clear();
+    Logger::log("Client " + _userName + " cleared join key.");
+}
+
+std::string Client::getChannelName() const {
+    std::string nameChannel;
+    for(std::set<Channel *>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+        nameChannel += (*it)->getName() + " ";
+        if(it!=_channels.end() && it!=--_channels.end())
+        {
+            nameChannel += ", ";
+        }
+    }
+    return nameChannel;
 }

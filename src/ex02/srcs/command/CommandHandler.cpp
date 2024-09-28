@@ -9,12 +9,15 @@
 #include "JoinCommand.hpp"
 #include "ModeCommand.hpp"
 #include "WhoCommand.hpp"
+#include "InviteCommand.hpp"
+#include "KickCommand.hpp"
+#include "TopicCommand.hpp"
 #include <iostream>
 
 CommandHandler::CommandHandler(Server& server, std::map<int, Client*>& clients, const std::string& password)
     : _server(server), _clients(clients), _password(password) {
 
-    // Enregistrement des commandes
+    // Enregistrement des commandes existantes
     registerCommand("PASS", new PassCommand(password));
     registerCommand("PING", new PingCommand());
     registerCommand("NICK", new NickCommand());
@@ -26,6 +29,11 @@ CommandHandler::CommandHandler(Server& server, std::map<int, Client*>& clients, 
     registerCommand("PART", new PartCommand());
     registerCommand("MODE", new ModeCommand());
     registerCommand("WHO", new WhoCommand());
+
+    // Enregistrement des nouvelles commandes
+    registerCommand("INVITE", new InviteCommand());
+    registerCommand("KICK", new KickCommand());
+    registerCommand("TOPIC", new TopicCommand());
 }
 
 CommandHandler::~CommandHandler() {

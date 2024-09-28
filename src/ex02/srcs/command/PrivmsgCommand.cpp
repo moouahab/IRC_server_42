@@ -38,6 +38,7 @@ void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, cons
                 if (it->first != clientFd && it->second->isInChannel(recipient)) {
                     it->second->messageSend(":" + clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
                 }
+                std::cout << "\033[31m[DEBUG] liste des channel : " << clients[clientFd]->getChannelName() << "\033[0m" << std::endl;
             }
             userFound = true;
         }
