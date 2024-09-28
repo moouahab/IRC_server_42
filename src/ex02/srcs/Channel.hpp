@@ -12,7 +12,7 @@ class Channel {
 
         // Méthodes de gestion des clients
         // void addClient(Client* client);
-        bool addClient(Client *client);
+        bool addClient(Client *client, std::string key);
         void removeClient(Client* client);
         bool isClientInChannel(Client* client) const;
         std::set<Client*> getClients() const;
@@ -45,7 +45,7 @@ class Channel {
         int     getUserLimit() const { return _userLimit; };
         int     getClientCount() const { return _clients.size(); };
         // Diffusion de messages
-        void broadcast(const std::string& message, Client* sender = NULL);
+        void broadcast(const std::string& message, Client* sender = NULL, bool topic = false);
 
         // Invitations
         void inviteClient(Client* client) { _invitedClients.insert(client); }
