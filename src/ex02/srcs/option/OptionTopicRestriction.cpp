@@ -8,7 +8,7 @@ void OptionTopicRestriction::apply(Channel* channel, Client* client, const std::
     }
     channel->addMode('t');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " +t\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }
 
 void OptionTopicRestriction::remove(Channel* channel, Client* client, const std::string& argument) {
@@ -19,5 +19,5 @@ void OptionTopicRestriction::remove(Channel* channel, Client* client, const std:
     }
     channel->removeMode('t');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " -t\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }

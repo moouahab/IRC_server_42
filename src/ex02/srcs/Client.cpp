@@ -65,6 +65,7 @@ bool Client::isSessionActive() {
 
 // Gestion des canaux
 void Client::joinChannel(Channel* channel) {
+    Logger::log("Le chanel join :" + channel->getName() + " avec sucess");
     _channels.insert(channel);
 }
 
@@ -73,7 +74,9 @@ void Client::leaveChannel(Channel* channel) {
 }
 
 bool Client::isInChannel(const std::string& channelName) const {
-    for (std::set<Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+
+    for (std::set<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+        std::cout << "Entering " << (*it)->getName() << " "  << this->getUserName()  << std::endl;
         if ((*it)->getName() == channelName) {
             return true;
         }

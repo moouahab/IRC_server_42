@@ -8,7 +8,7 @@ void OptionInviteOnly::apply(Channel* channel, Client* client, const std::string
     }
     channel->addMode('i');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " +i\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }
 
 void OptionInviteOnly::remove(Channel* channel, Client* client, const std::string& argument) {
@@ -19,5 +19,5 @@ void OptionInviteOnly::remove(Channel* channel, Client* client, const std::strin
     }
     channel->removeMode('i');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " -i\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }

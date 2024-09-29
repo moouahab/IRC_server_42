@@ -12,7 +12,7 @@ void OptionKey::apply(Channel* channel, Client* client, const std::string& argum
     channel->setPassword(argument);
     channel->addMode('k');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " +k " + argument + "\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }
 
 void OptionKey::remove(Channel* channel, Client* client, const std::string& argument) {
@@ -24,5 +24,5 @@ void OptionKey::remove(Channel* channel, Client* client, const std::string& argu
     channel->setPassword("");
     channel->removeMode('k');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " -k\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }

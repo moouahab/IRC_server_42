@@ -4,6 +4,7 @@ Channel::Channel(const std::string& name, Client* creator, const std::string& pa
     : _name(name), _creator(creator), _password(password), _userLimit(0) {
     _clients.insert(creator);
     _operators.insert(creator);
+    Logger::log(" Creationi au canal " + _name );
 }
 
 Channel::~Channel() {
@@ -14,38 +15,41 @@ bool Channel::addClient(Client* client, std::string key) {
     
     // Vérifier si le canal est en mode +k (protégé par mot de passe)
     if (hasMode('k') && getPassword() != key) {
-        client->messageSend("475 " + _name + " :Cannot join channel (+k)\r\n");
+        client->messageSend("475 " + client->getUserName() + " " + _name + " :Cannot join channel (+k)\r\n");
+        Logger::log("Error  " + _name + " : " + client->getUserName() + " n'a pas ressuit a ce connecter (+k)");
         return false;
     }
 
     // Vérifier si le canal est en mode +i (invitation uniquement)
     if (hasMode('i') && !isInvited(client)) {
-        client->messageSend("473 " + _name + " :Cannot join channel (+i)\r\n");
+        client->messageSend("473 " + client->getUserName() + " " + _name + " :Cannot join channel (+i)\r\n");
+        Logger::log("Error  " + _name + " : " + client->getUserName() + " n'a pas ressuit a ce connecter (+i)");
         return false;
     }
 
     // Vérifier si la limite d'utilisateurs est atteinte
     if (hasMode('l') && getUserLimit() > 0 && getClientCount() >= getUserLimit()) {
-        client->messageSend("471 " + _name + " :Cannot join channel (+l)\r\n");
+        client->messageSend("471 " + client->getUserName() + " " + _name + " :Cannot join channel (+l)\r\n");
+        Logger::log("Error  " + _name + " : " + client->getUserName() + " n'a pas ressuit a ce connecter (+l)");
         return false;
     }
     _clients.insert(client);
-
+    Logger::log( _name + " : " + client->getUserName() + " a ressuit a ce connecter");
     removeInvitation(client); // Supprimer l'invitation après que le client a rejoint
     return true;
 }
 
-
-
-
 void Channel::addOperator(Client* client) {
     if (isClientInChannel(client)) {
         _operators.insert(client);
+        Logger::log( _name + " : " + client->getUserName() + " a ressuit a ce connecter entant Operator ");
     }
 }
 
 void Channel::broadcast(const std::string& message, Client* sender, bool topic) {
-    if (topic) 
+    if (sender != NULL)
+        Logger::log( _name + " : " + sender->getUserName() + "a envoier un message.");
+    if (topic || _operators.find(sender) != _operators.end()) 
     {
         for (std::set<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
             (*it)->messageSend(message);
@@ -59,6 +63,7 @@ void Channel::broadcast(const std::string& message, Client* sender, bool topic) 
             }
         }
     }
+
 }
 
 Client* Channel::getClientByName(const std::string& userName) const {
@@ -68,6 +73,7 @@ Client* Channel::getClientByName(const std::string& userName) const {
         }
     }
     return NULL;
+
 }
 
 void Channel::addMode(char mode) {

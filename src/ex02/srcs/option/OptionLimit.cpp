@@ -18,7 +18,7 @@ void OptionLimit::apply(Channel* channel, Client* client, const std::string& arg
     channel->setUserLimit(limit);
     channel->addMode('l');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " +l " + argument + "\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }
 
 void OptionLimit::remove(Channel* channel, Client* client, const std::string& argument) {
@@ -30,5 +30,5 @@ void OptionLimit::remove(Channel* channel, Client* client, const std::string& ar
     channel->setUserLimit(0);
     channel->removeMode('l');
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " -l\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }

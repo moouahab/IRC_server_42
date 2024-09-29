@@ -20,19 +20,6 @@ void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, cons
 
         bool userFound = false;
 
-        for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
-            
-            std::cout << "[PRIVINFO] " << recipient << " :"  << message << std::endl;
-            
-            if (it->second->getUserName() == recipient) {
-                it->second->messageSend(clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
-                if (clients[clientFd]->getUserName() != recipient)
-                    clients[clientFd]->messageSend(clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
-                userFound = true;
-                break;
-            }
-        }
-
         if (recipient[0] == '#') {
             for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
                 if (it->first != clientFd && it->second->isInChannel(recipient)) {
@@ -40,6 +27,19 @@ void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, cons
                 }
             }
             userFound = true;
+        } else {
+            for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+                
+                std::cout << "[PRIVINFO] " << recipient << " :"  << message << std::endl;
+                
+                if (it->second->getUserName() == recipient) {
+                    it->second->messageSend(clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
+                    if (clients[clientFd]->getUserName() != recipient)
+                        clients[clientFd]->messageSend(clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
+                    userFound = true;
+                    break;
+                }
+            }
         }
 
         if (!userFound) {

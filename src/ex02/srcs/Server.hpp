@@ -20,8 +20,6 @@ private:
 
     void    acceptConnect();
     void    handleClient(int clientFd);
-    void    closeClient(int clientFd);
-    void    cleanupInactiveClients();
 
 public:
     Server(const std::string& password, unsigned int port, std::string server);
@@ -32,6 +30,7 @@ public:
     Channel             *getChannel(const std::string& channelName);
     void                createChannel(const std::string& channelName, Client* creator, const std::string& password = "");
     void                removeChannel(const std::string& channelName);
+    void                closeClient(int clientFd);
 };
 
 #endif

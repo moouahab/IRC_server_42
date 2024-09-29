@@ -150,7 +150,7 @@ void Server::handleClient(int clientFd) {
 std::string Server::getServerName() const { return _serverName; }
 
 void Server::closeClient(int clientFd) {
-    Client* client = _clients[clientFd];
+    Client  *client = _clients[clientFd];
 
     // Retirer le client de tous les canaux
     std::set<Channel*> clientChannels = client->getChannels();

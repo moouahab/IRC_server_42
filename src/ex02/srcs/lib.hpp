@@ -21,6 +21,7 @@
 # include <vector>
 # include <poll.h>
 # include <map>
+# include "Logger.hpp"
 
 bool                     isNumber(const std::string &str);
 std::vector<std::string> splitString(const std::string& str, char delimiter);

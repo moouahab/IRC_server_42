@@ -16,7 +16,7 @@ void OptionOperator::apply(Channel* channel, Client* client, const std::string& 
 
     channel->addOperator(targetClient);
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " +o " + targetClient->getUserName() + "\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }
 
 void OptionOperator::remove(Channel* channel, Client* client, const std::string& argument) {
@@ -33,5 +33,5 @@ void OptionOperator::remove(Channel* channel, Client* client, const std::string&
 
     channel->removeOperator(targetClient);
     std::string modeMessage = ":" + client->getPrefix() + " MODE " + channel->getName() + " -o " + targetClient->getUserName() + "\r\n";
-    channel->broadcast(modeMessage);
+    channel->broadcast(modeMessage, client);
 }
