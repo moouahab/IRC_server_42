@@ -3,7 +3,7 @@ NAME = ircserv
 
 # Compilateur et options de compilation
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -g3 -O3 -std=c++98 -I srcs/ -I srcs/command/ -I srcs/option/
+CXXFLAGS = -Wall -Wextra -Werror -g3 -std=c++98 -fsanitize=address -DDEBUG -I srcs/ -I srcs/command/ -I srcs/option/
 
 # Répertoire pour les fichiers objets
 OBJDIR = obj
@@ -13,6 +13,7 @@ SRCS = \
 	srcs/command/CapCommand.cpp \
 	srcs/Channel.cpp \
 	srcs/Client.cpp \
+	srcs/Logger.cpp \
 	srcs/command/CommandHandler.cpp \
 	srcs/command/JoinCommand.cpp \
 	srcs/command/NickCommand.cpp \
@@ -33,8 +34,9 @@ SRCS = \
 	srcs/option/OptionTopicRestriction.cpp \
 	srcs/Server.cpp \
 	srcs/command/UserCommand.cpp \
-	srcs/main.cpp \
-	srcs/utils.cpp
+	srcs/command/QuitCommand.cpp \
+	srcs/utils.cpp \
+	srcs/main.cpp
 
 # Transformation des fichiers sources en fichiers objets
 # Exemple : srcs/command/CapCommand.cpp -> obj/command/CapCommand.o
@@ -66,7 +68,6 @@ clean:
 # Nettoyage complet (objets + exécutable)
 fclean: clean
 	rm -f $(NAME)
-	rm server.log
 
 # Recompilation complète
 re: fclean all

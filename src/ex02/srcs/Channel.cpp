@@ -4,7 +4,7 @@ Channel::Channel(const std::string& name, Client* creator, const std::string& pa
     : _name(name), _creator(creator), _password(password), _userLimit(0) {
     _clients.insert(creator);
     _operators.insert(creator);
-    Logger::log(" Creationi au canal " + _name );
+    Logger::log(" Creation au canal " + _name );
 }
 
 Channel::~Channel() {
@@ -94,6 +94,7 @@ std::string         Channel::getName() const { return _name;}
 std::string         Channel::getMode() const { return _mode; }
 std::string         Channel::getTopic() const { return _topic; }
 Client             *Channel::getCreator() const { return _creator; }
+std::set<Client*>   Channel::getClients() const { return _clients; }
 void                Channel::setMode(const std::string& mode) { _mode = mode; }
 void                Channel::setTopic(const std::string& topic) { _topic = topic;}
 void                Channel::removeClient(Client* client) { _clients.erase(client); }
@@ -103,4 +104,3 @@ bool                Channel::hasMode(char mode) const { return _mode.find(mode) 
 bool                Channel::checkPassword(const std::string& password) const { return _password == password; }
 bool                Channel::isOperator(Client* client) const { return _operators.find(client) != _operators.end();}
 bool                Channel::isClientInChannel(Client* client) const { return _clients.find(client) != _clients.end(); }
-std::set<Client*>   Channel::getClients() const { return _clients; }
