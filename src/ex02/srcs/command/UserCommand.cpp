@@ -18,7 +18,7 @@ void UserCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
     client->setHostName(args[1]);
     client->setRealName(args[4]);
 
-    if (!client->getUserName().empty()) {
+    if (!client->getUserName().empty() && client->getConnect()) {
         // Envoyer les messages de bienvenue
         client->messageSend("001 " + client->getUserName() + " :Welcome to the IRC server\r\n");
         client->messageSend("002 " + client->getUserName() + " :Your host is " + server.getServerName() + "\r\n");

@@ -1,3 +1,4 @@
+# include <algorithm> // Pour std::remove
 # include <iostream>
 # include <cctype>
 # include <vector>
@@ -109,16 +110,28 @@ bool parseArgument(int &port, std::string &password, char *av[])
     return true;
 }
 
-
-// Function to trim leading and trailing whitespaces from a string
-std::string trim(const std::string& str) {
-    size_t first = str.find_first_not_of("\r\n");
-    size_t last = str.find_last_not_of("\r\n");
-    if (first == std::string::npos || last == std::string::npos) {
-        return ""; // Si la chaîne est composée uniquement de retours à la ligne
-    }
-    return str.substr(first, last - first + 1);
+std::string removeEOT(const std::string& str) {
+    std::string result = str;
+    result.erase(std::remove(result.begin(), result.end(), '\x04'), result.end());
+    return result;
 }
+
+std::string trim(const std::string& str) {
+    // Créer une copie de la chaîne d'entrée
+    std::string result = str;
+
+    // Supprimer tous les caractères EOT de la chaîne
+    result.erase(std::remove(result.begin(), result.end(), '\x04'), result.end());
+
+    // Supprimer les espaces, tabulations et retours à la ligne au début et à la fin
+    size_t first = result.find_first_not_of(" \r\n\t");
+    size_t last = result.find_last_not_of(" \r\n\t");
+    if (first == std::string::npos || last == std::string::npos) {
+        return ""; // Si la chaîne est composée uniquement d'espaces ou de retours à la ligne
+    }
+    return result.substr(first, last - first + 1);
+}
+
 
 
 

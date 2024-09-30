@@ -21,12 +21,20 @@ std::string Client::getMessageClient() {
     ssize_t bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0);
 
     if (bytesRead <= 0) {
+		std::cout << "je suis la  man " << std::endl;
         _connected = false;
         return "";
     }
 
     fullMessage.append(buffer, bytesRead);
-
+	// std::cout <<"[DEBUG] message envoier " << fullMessage << std::endl;
+	// std::cout << "[DEBUG] ";
+	// for (size_t i = 0; i < fullMessage.size(); i++)
+	// {
+	// 	std::cout << static_cast<int>(fullMessage[i]);
+	// }
+	// std::cout << std::endl;
+	
     return trim(fullMessage);
 }
 

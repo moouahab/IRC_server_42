@@ -26,13 +26,12 @@ void ModeCommand::execute(int clientFd, std::map<int, Client*>& clients,
                           const std::vector<std::string>& args, Server& server) {
     Client* client = clients[clientFd];
 
+
     if (args.size() < 2) {
         client->messageSend("461 MODE :Not enough parameters\r\n");
         return;
     }
-
     std::string target = args[1];
-
     if (server.getChannel(target)) {
         // Gestion des modes de canal
         Channel* channel = server.getChannel(target);
@@ -61,21 +60,25 @@ void ModeCommand::execute(int clientFd, std::map<int, Client*>& clients,
                 OptionMode* option = _option[modeChar];
                 if (option) {
                     std::string modeArgument;
+
                     if (option->requiresArgument()) {
-                        if (argIndex >= args.size()) {
+
+                        if (argIndex >= args.size() && modeChar != 'l') {
                             client->messageSend("461 MODE :Not enough parameters\r\n");
-                            return;
+                            return ;
                         }
-                        modeArgument = args[argIndex++];
+						else if (argIndex < args.size())
+                        	modeArgument = args[argIndex++];
                     }
-                    if (adding) {
+
+                    if (adding)
                         option->apply(channel, client, modeArgument);
-                    } else {
+                    else
                         option->remove(channel, client, modeArgument);
-                    }
                 } else {
                     client->messageSend("472 " + std::string(1, modeChar) + " :is unknown mode char to me\r\n");
                 }
+
             }
         }
     }

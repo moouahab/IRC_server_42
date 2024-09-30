@@ -69,10 +69,10 @@ void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>&
     std::string     commandName = args[0];
     Command*        command = createCommand(commandName);
 
-    if (command)
-        executeCommand(command, clientFd, args);
-    else
-         _clients[clientFd]->messageSend("421 " + args[0] + " :Unknown command\r\n");
+	if (command)
+		executeCommand(command, clientFd, args);
+	else
+		_clients[clientFd]->messageSend("421 " + args[0] + " :Unknown command\r\n");
 }
 
 void CommandHandler::executeCommand(Command* command, int clientFd, const std::vector<std::string>& args) {
