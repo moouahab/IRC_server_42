@@ -63,7 +63,7 @@ void ModeCommand::execute(int clientFd, std::map<int, Client*>& clients,
 
                     if (option->requiresArgument()) {
 
-                        if (argIndex >= args.size() && modeChar != 'l') {
+                        if (argIndex >= args.size() && modeChar != 'l' && modeChar != 'o') {
                             client->messageSend("461 MODE :Not enough parameters\r\n");
                             return ;
                         }

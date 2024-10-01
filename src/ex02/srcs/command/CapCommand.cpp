@@ -20,18 +20,15 @@ void CapCommand::execute(int clientFd, std::map<int, Client*>& clients, const st
         std::string ackCapabilities, nakCapabilities;
 
         while (iss >> capability) {
-            if (capability == "multi-prefix" || capability == "sasl") {
+            if (capability == "multi-prefix" || capability == "sasl")
                 ackCapabilities += capability + " ";
-            } else {
+            else
                 nakCapabilities += capability + " ";
-            }
         }
 
-        if (!ackCapabilities.empty()) {
+        if (!ackCapabilities.empty())
             clients[clientFd]->messageSend("CAP * ACK :" + ackCapabilities + "\r\n");
-        }
-        if (!nakCapabilities.empty()) {
+        if (!nakCapabilities.empty())
             clients[clientFd]->messageSend("CAP * NAK :" + nakCapabilities + "\r\n");
-        }
     }
 }

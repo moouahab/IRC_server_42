@@ -132,9 +132,6 @@ std::string trim(const std::string& str) {
     return result.substr(first, last - first + 1);
 }
 
-
-
-
 // Function to split a string using a delimiter
 std::vector<std::string> splitString(const std::string &str, char delimiter) {
     std::vector<std::string> tokens;

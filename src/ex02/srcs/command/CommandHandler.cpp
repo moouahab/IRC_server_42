@@ -68,11 +68,29 @@ void CommandHandler::handleCommand(int clientFd, const std::vector<std::string>&
 
     std::string     commandName = args[0];
     Command*        command = createCommand(commandName);
-
-	if (command)
-		executeCommand(command, clientFd, args);
-	else
-		_clients[clientFd]->messageSend("421 " + args[0] + " :Unknown command\r\n");
+    
+    if (commandName == "PASS" || commandName == "NICK" || commandName == "USER" || commandName == "CAP") {
+        
+        if (commandName == "NICK" && _clients[clientFd]->getConnect())
+            executeCommand(command, clientFd, args);
+        else if (commandName == "NICK" && !_clients[clientFd]->getConnect())
+            _clients[clientFd]->messageSend("433 " + args[1] + " :Nickname is already in use\r\n");
+        else if (commandName == "USER" && !_clients[clientFd]->getUserName().empty())
+            executeCommand(command, clientFd, args);
+        else if (commandName == "USER" && _clients[clientFd]->getUserName().empty())
+            _clients[clientFd]->messageSend("433 " + args[0] + " :Nickname is already in use\r\n");
+        else
+            executeCommand(command, clientFd, args);
+    }
+    else if (!_clients[clientFd]->getHostName().empty() && !_clients[clientFd]->getUserName().empty()) {
+	    if (command)
+		    executeCommand(command, clientFd, args);
+	    else
+		    _clients[clientFd]->messageSend("421 " + args[0] + " :Unknown command\r\n");
+    }
+    else {
+        _clients[clientFd]->messageSend("451 " + args[0] + " :Not yet registered\r\n");
+    }
 }
 
 void CommandHandler::executeCommand(Command* command, int clientFd, const std::vector<std::string>& args) {

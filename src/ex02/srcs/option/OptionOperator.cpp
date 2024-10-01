@@ -20,7 +20,7 @@ void OptionOperator::apply(Channel* channel, Client* client, const std::string& 
 }
 
 void OptionOperator::remove(Channel* channel, Client* client, const std::string& argument) {
-    if (!channel->isOperator(client)) {
+    if (!channel->getCreator(client)) {
         client->messageSend("482 " + channel->getName() + " :You're not channel operator\r\n");
         return;
     }

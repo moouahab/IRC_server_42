@@ -52,6 +52,7 @@ class Channel {
         bool isInvited(Client* client) const { return _invitedClients.find(client) != _invitedClients.end(); }
         void removeInvitation(Client* client) { _invitedClients.erase(client); }
         std::string const getPassword() const { return _password; }
+        bool getCreator(Client* creator) const { return _creator == creator; }
 
         bool hasMode(char mode) const;
 
@@ -63,8 +64,7 @@ class Channel {
         Client*           _creator;
         
         std::string       _password;
-
-         int              _userLimit;
+        int               _userLimit;
 
         std::set<Client*> _clients;
         std::set<Client*> _operators;

@@ -10,12 +10,12 @@ class Channel; // Déclaration anticipée
 class Client
 {
     private:
+        int                 _sockfd;
         std::string         _hostName;
         std::string         _userName;
-        std::string         _realName;
-        int                 _sockfd;
         bool                _connected;
         bool                _isIrssi;
+        std::string         _realName;
         std::time_t         _connectTime;
         std::set<Channel*>  _channels;
 

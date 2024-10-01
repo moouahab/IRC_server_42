@@ -5,7 +5,8 @@
 #include <cstring>
 #include <iostream>
 
-Client::Client(int sockfd) : _sockfd(sockfd), _connected(false), _isIrssi(true) {
+Client::Client(int sockfd) : 
+    _sockfd(sockfd), _connected(false), _isIrssi(true) {
     _connectTime = std::time(NULL);
 }
 
@@ -18,15 +19,16 @@ std::string Client::getMessageClient() {
     char buffer[1024];
     std::memset(buffer, 0, sizeof(buffer));
     std::string fullMessage;
-    ssize_t bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0);
 
+    ssize_t bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0);
+    // std::cout << bytesRead << std::endl;
     if (bytesRead <= 0) {
-		std::cout << "je suis la  man " << std::endl;
         _connected = false;
         return "";
     }
-
     fullMessage.append(buffer, bytesRead);
+    if (fullMessage.size() == 1 &&   fullMessage[0] == '\n')
+        return " ";
 	// std::cout <<"[DEBUG] message envoier " << fullMessage << std::endl;
 	// std::cout << "[DEBUG] ";
 	// for (size_t i = 0; i < fullMessage.size(); i++)
@@ -34,7 +36,6 @@ std::string Client::getMessageClient() {
 	// 	std::cout << static_cast<int>(fullMessage[i]);
 	// }
 	// std::cout << std::endl;
-	
     return trim(fullMessage);
 }
 
