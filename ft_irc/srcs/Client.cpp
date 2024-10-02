@@ -15,26 +15,23 @@ Client::~Client() {
 }
 
 std::string Client::getMessageClient() {
-    char buffer[1024];
-    std::memset(buffer, 0, sizeof(buffer));
-    std::string fullMessage;
-    ssize_t bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0);
-    if (bytesRead <= 0) {
-        _connected = false;
-        return "";
-    }
 
-    fullMessage.append(buffer, bytesRead);
-	if (bytesRead == 1 &&   fullMessage[0] == '\n')
-        return " ";
-	// std::cout <<"[DEBUG] message envoier " << fullMessage << std::endl;
-	// std::cout << "[DEBUG] ";
-	// for (size_t i = 0; i < fullMessage.size(); i++)
-	// {
-	// 	std::cout << static_cast<int>(fullMessage[i]);
-	// }
-	// std::cout << std::endl;
-	
+    char        buffer[1024];
+    ssize_t     bytesRead;
+    std::string fullMessage;
+
+    while (true) {
+        std::memset(buffer, 0, sizeof(buffer));
+        bytesRead = recv(_sockfd, buffer, sizeof(buffer), 0);
+        if (bytesRead <= 0) {
+            _connected = false;
+            return "";
+        }
+        fullMessage.append(buffer, bytesRead);
+        if (fullMessage.find('\n') != std::string::npos) break ;
+    }
+    if (bytesRead == 1 &&   fullMessage[0] == '\n') return " ";
+    // Nettoyage de la chaîne et retour
     return trim(fullMessage);
 }
 
