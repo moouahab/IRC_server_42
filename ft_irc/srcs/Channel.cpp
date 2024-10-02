@@ -4,12 +4,9 @@ Channel::Channel(const std::string& name, Client* creator, const std::string& pa
     : _name(name), _creator(creator), _password(password), _userLimit(0) {
     _clients.insert(creator);
     _operators.insert(creator);
-    Logger::log(" Creation au canal " + _name );
 }
 
-Channel::~Channel() {
-    // Aucune ressource dynamique à libérer ici
-}
+Channel::~Channel() {}
 
 bool Channel::addClient(Client* client, std::string key) {
     
@@ -66,29 +63,21 @@ void Channel::broadcast(const std::string& message, Client* sender, bool topic) 
 
 }
 
+void Channel::removeMode(char mode) {
+    size_t pos = _mode.find(mode);
+    if (pos != std::string::npos) _mode.erase(pos, 1);
+}
+
 Client* Channel::getClientByName(const std::string& userName) const {
     for (std::set<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-        if ((*it)->getUserName() == userName) {
-            return *it;
-        }
+        if ((*it)->getUserName() == userName) return *it;
     }
     return NULL;
-
 }
 
 void Channel::addMode(char mode) {
-    if (_mode.find(mode) == std::string::npos) {
-        _mode += mode;
-    }
+    if (_mode.find(mode) == std::string::npos) _mode += mode;
 }
-
-void Channel::removeMode(char mode) {
-    size_t pos = _mode.find(mode);
-    if (pos != std::string::npos) {
-        _mode.erase(pos, 1);
-    }
-}
-
 
 std::string         Channel::getName() const { return _name;}
 std::string         Channel::getMode() const { return _mode; }

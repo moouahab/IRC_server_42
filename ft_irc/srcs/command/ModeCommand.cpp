@@ -37,13 +37,12 @@ void ModeCommand::execute(int clientFd, std::map<int, Client*>& clients,
         Channel* channel = server.getChannel(target);
         if (!channel) {
             client->messageSend("403 " + target + " :No such channel\r\n");
-            return;
+            return ;
         }
 
         if (args.size() == 2) {
-            // Pas de modes spécifiés, renvoyer les modes actuels du canal
             client->messageSend("324 " + client->getUserName() + " " + channel->getName() + " +" + channel->getMode() + "\r\n");
-            return;
+            return ;
         }
 
         std::string modes = args[2];

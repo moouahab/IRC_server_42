@@ -5,7 +5,6 @@
 void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
                           const std::vector<std::string>& args, Server& server) {
     Client* client = clients[clientFd];
-
     // Vérifier le nombre d'arguments
     if (args.size() < 2) {
         client->messageSend("461 JOIN :Not enough parameters\r\n");
@@ -16,9 +15,7 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
     std::string key = "";
     if (args.size() >= 3)
         key = args[2];
-
     Logger::log("Le client " + client->getUserName() + " tente de rejoindre le canal " + channelName + " avec la clé '" + key + "'.");
-
     // Vérifier si le canal existe
     Channel* channel = server.getChannel(channelName);
     if (!channel) {
@@ -27,7 +24,6 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
         server.createChannel(channelName, client);
         channel = server.getChannel(channelName);
     }
-
     // Ajouter le client au canal
     if (!channel->addClient(client, key)) {
         Logger::log("Échec de l'ajout du client " + client->getUserName() + " au canal " + channelName + ".");
@@ -35,12 +31,10 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
     }
     client->joinChannel(channel);
     Logger::log("Le client " + client->getUserName() + " a rejoint le canal " + channelName + ".");
-
     // Envoyer les messages appropriés
     std::string joinMessage = ":" + client->getPrefix() + " JOIN :" + channelName + "\r\n";
     channel->broadcast(joinMessage);
     Logger::log("Message JOIN diffusé sur le canal " + channelName + ".");
-
     // Envoyer le sujet du canal
     if (!channel->getTopic().empty()) {
         client->messageSend("332 " + client->getUserName() + " " + channelName + " :" + channel->getTopic() + "\r\n");
@@ -49,7 +43,6 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
         client->messageSend("331 " + client->getUserName() + " " + channelName + " :No topic is set\r\n");
         Logger::log("Aucun sujet défini pour le canal " + channelName + ".");
     }
-
     // Lister les utilisateurs du canal
     std::string namesList = "= " + channelName + " :";
     std::set<Client*> channelClients = channel->getClients();
@@ -60,7 +53,6 @@ void JoinCommand::execute(int clientFd, std::map<int, Client*>& clients,
             namesList += (*it)->getUserName() + " ";
         }
     }
-
     client->messageSend("353 " + client->getUserName() + " " + namesList + "\r\n");
     client->messageSend("366 " + client->getUserName() + " " + channelName + " :End of NAMES list\r\n");
     Logger::log("Liste des utilisateurs du canal " + channelName + " envoyée au client " + client->getUserName() + ".");

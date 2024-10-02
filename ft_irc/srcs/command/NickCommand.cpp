@@ -10,12 +10,12 @@ void NickCommand::execute(int clientFd, std::map<int, Client*>& clients, const s
         // Vérification : pseudonyme vide ou avec caractères invalides
         if (newNick.empty()) {
             clients[clientFd]->messageSend("431 NICK :No nickname given\r\n");
-            return;
+            return ;
         }
         for (size_t i = 0; i < newNick.length(); ++i) {
             if (!isalnum(newNick[i]) && newNick[i] != '_') {
                 clients[clientFd]->messageSend("432 " + newNick + " :Erroneous nickname\r\n");
-                return;
+                return ;
             }
         }
 

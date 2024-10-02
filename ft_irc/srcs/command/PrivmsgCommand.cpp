@@ -22,9 +22,9 @@ void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, cons
 
         if (recipient[0] == '#') {
             for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
-                if (it->first != clientFd && it->second->isInChannel(recipient)) {
+                if (it->first != clientFd && it->second->isInChannel(recipient))
                     it->second->messageSend(":" + clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
-                }
+
             }
             userFound = true;
         } else {
@@ -37,13 +37,11 @@ void PrivmsgCommand::execute(int clientFd, std::map<int, Client*>& clients, cons
                     if (clients[clientFd]->getUserName() != recipient)
                         clients[clientFd]->messageSend(clients[clientFd]->getUserName() + " PRIVMSG " + recipient + " :" + message + "\r\n");
                     userFound = true;
-                    break;
+                    break ;
                 }
             }
         }
 
-        if (!userFound) {
-            clients[clientFd]->messageSend("401 " + recipient + " :No such nick/channel\r\n");
-        }
+        if (!userFound) clients[clientFd]->messageSend("401 " + recipient + " :No such nick/channel\r\n");
     }
 }

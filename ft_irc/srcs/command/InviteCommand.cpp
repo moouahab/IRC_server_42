@@ -11,7 +11,7 @@ void InviteCommand::execute(int clientFd, std::map<int, Client*>& clients,
     
     if (args.size() < 3) {
         client->messageSend("461 INVITE :Not enough parameters\r\n");
-        return;
+        return ;
     }
     
     std::string targetNick = args[1];
@@ -20,7 +20,7 @@ void InviteCommand::execute(int clientFd, std::map<int, Client*>& clients,
     Channel* channel = server.getChannel(channelName);
     if (!channel) {
         client->messageSend("403 " + channelName + " :No such channel\r\n");
-        return;
+        return ;
     }
     
     if (!channel->isClientInChannel(client)) {
@@ -30,7 +30,7 @@ void InviteCommand::execute(int clientFd, std::map<int, Client*>& clients,
     
     if (!channel->isOperator(client)) {
         client->messageSend("482 " + channelName + " :You're not channel operator\r\n");
-        return;
+        return ;
     }
     
     // Trouver le client cible
@@ -38,13 +38,13 @@ void InviteCommand::execute(int clientFd, std::map<int, Client*>& clients,
     for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
         if (it->second->getUserName() == targetNick) {
             targetClient = it->second;
-            break;
+            break ;
         }
     }
     
     if (!targetClient) {
         client->messageSend("401 " + targetNick + " :No such nick/channel\r\n");
-        return;
+        return ;
     }
     
     // Ajouter le client cible aux invitations du canal

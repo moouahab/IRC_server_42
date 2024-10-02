@@ -16,9 +16,7 @@ void QuitCommand::execute(int clientFd, std::map<int, Client*>& clients,
             quitMessage += " " + args[i];
         }
         // Supprimer le ':' initial si présent
-        if (!quitMessage.empty() && quitMessage[0] == ':') {
-            quitMessage = quitMessage.substr(1);
-        }
+        if (!quitMessage.empty() && quitMessage[0] == ':') quitMessage = quitMessage.substr(1);
     }
 
     // Notifier tous les clients sur les mêmes canaux

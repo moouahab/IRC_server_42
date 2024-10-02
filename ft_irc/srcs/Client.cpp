@@ -74,25 +74,15 @@ void Client::joinChannel(Channel* channel) {
     _channels.insert(channel);
 }
 
-void Client::leaveChannel(Channel* channel) {
-    _channels.erase(channel);
-}
+void Client::leaveChannel(Channel* channel) { _channels.erase(channel); }
 
 bool Client::isInChannel(const std::string& channelName) const {
-
     for (std::set<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
-        std::cout << "Entering " << (*it)->getName() << " "  << this->getUserName()  << std::endl;
-        if ((*it)->getName() == channelName) {
-            return true;
-        }
+        if ((*it)->getName() == channelName) return true;
     }
     return false;
 }
 
-std::set<Channel*> Client::getChannels() const {
-    return _channels;
-}
+std::set<Channel*> Client::getChannels() const { return _channels; }
 
-std::string Client::getPrefix() const {
-    return getUserName() + "!" + _userName + "@" + _hostName;
-}
+std::string Client::getPrefix() const { return getUserName() + "!" + _userName + "@" + _hostName; }

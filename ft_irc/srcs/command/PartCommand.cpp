@@ -52,7 +52,7 @@ void PartCommand::execute(int clientFd, std::map<int, Client*>& clients,
         partMessage += "\r\n";
 
         // Envoyer le message aux autres membres du canal
-        channel->broadcast(partMessage, client);
+        channel->broadcast(partMessage, client, false);
 
         // Envoyer le message au client lui-même
         client->messageSend(partMessage);
@@ -62,8 +62,7 @@ void PartCommand::execute(int clientFd, std::map<int, Client*>& clients,
         client->leaveChannel(channel);
 
         // Si le canal est vide, le supprimer
-        if (channel->getClients().empty()) {
+        if (channel->getClients().empty())
             server.removeChannel(channelName);
-        }
     }
 }

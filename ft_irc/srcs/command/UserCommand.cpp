@@ -5,14 +5,14 @@
 void UserCommand::execute(int clientFd, std::map<int, Client*>& clients, const std::vector<std::string>& args, Server &server) {
     if (args.size() < 5) {
         clients[clientFd]->messageSend("461 USER :Not enough parameters\r\n");
-        return;
+        return ;
     }
 
     Client* client = clients[clientFd];
 
     if (client->isRegistered()) {
         client->messageSend("462 :You are already registered\r\n");
-        return;
+        return ;
     }
 
     client->setHostName(args[1]);

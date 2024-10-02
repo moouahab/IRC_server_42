@@ -32,23 +32,23 @@ void KickCommand::execute(int clientFd, std::map<int, Client*>& clients,
     Channel* channel = server.getChannel(channelName);
     if (!channel) {
         client->messageSend("403 " + channelName + " :No such channel\r\n");
-        return;
+        return ;
     }
     
     if (!channel->isClientInChannel(client)) {
         client->messageSend("442 " + channelName + " :You're not on that channel\r\n");
-        return;
+        return ;
     }
     
     if (!channel->isOperator(client)) {
         client->messageSend("482 " + channelName + " :You're not channel operator\r\n");
-        return;
+        return ;
     }
     
     Client* targetClient = channel->getClientByName(targetNick);
     if (!targetClient) {
         client->messageSend("441 " + targetNick + " " + channelName + " :They aren't on that channel\r\n");
-        return;
+        return ;
     }
     
     // Construire le message de KICK
@@ -63,7 +63,6 @@ void KickCommand::execute(int clientFd, std::map<int, Client*>& clients,
     targetClient->leaveChannel(channel);
     
     // Si le canal est vide, le supprimer
-    if (channel->getClients().empty()) {
+    if (channel->getClients().empty())
         server.removeChannel(channelName);
-    }
 }
