@@ -49,8 +49,6 @@ Le serveur IRC est responsable de la gestion des connexions clients, du traiteme
 
 Tous les messages échangés entre le client et le serveur sont des lignes de texte terminées par \r\n. Chaque message suit un format général, qui peut être décrit comme suit :
 
-php
-
 <préfixe> <commande> <paramètres> :<trailing>
 
     Préfixe (optionnel) : Identifie l'origine du message (serveur ou utilisateur).
